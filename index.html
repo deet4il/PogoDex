@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon GO Master Living Dex</title>
+
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" href="./favicon.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <meta name="theme-color" content="#0b0f19" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #151e2e;
+      --card-border: #243046;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      
+      /* Collector Status Colors */
+      --caught: #10b981;
+      --shiny: #f59e0b;
+      --lucky: #eab308;
+      --shadow: #a855f7;
+      --purified: #06b6d4;
+      --hundo: #ef4444;
+      --nundo: #64748b;
+      --xxs: #ec4899;
+      --xxl: #8b5cf6;
+      --event: #14b8a6;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+    }
+
+    .header { text-align: center; margin-bottom: 12px; }
+    .header-logo { width: 56px; height: 56px; border-radius: 12px; vertical-align: middle; margin-bottom: 6px; }
+    .header h1 { margin: 0 0 4px 0; font-size: 22px; }
+    .header p { margin: 0; color: var(--text-muted); font-size: 13px; }
+
+    /* Top Action Bar (Sync + Backup/Restore) */
+    .top-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .sync-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+    }
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--caught);
+      box-shadow: 0 0 6px var(--caught);
+    }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--card-border);
+      background: #1e293b;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .action-btn:hover {
+      background: #243046;
+      border-color: var(--accent);
+    }
+
+    /* Dashboard & Stat Badges */
+    .dashboard {
+      max-width: 1100px;
+      margin: 14px auto 16px;
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+      gap: 8px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .stat-badge {
+      background: #0b0f19;
+      padding: 6px 4px;
+      border-radius: 6px;
+      font-size: 11px;
+      border: 1px solid var(--card-border);
+    }
+    .stat-badge strong { display: block; font-size: 14px; margin-top: 2px; }
+
+    .c-caught { color: var(--caught); }
+    .c-shiny { color: var(--shiny); }
+    .c-lucky { color: var(--lucky); }
+    .c-shadow { color: var(--shadow); }
+    .c-purified { color: var(--purified); }
+    .c-hundo { color: var(--hundo); }
+    .c-nundo { color: var(--nundo); }
+    .c-xxs { color: var(--xxs); }
+    .c-xxl { color: var(--xxl); }
+    .c-event { color: var(--event); }
+
+    .bar-bg { background: #243046; height: 10px; border-radius: 5px; overflow: hidden; }
+    .bar-fill { background: var(--caught); height: 100%; width: 0%; transition: width 0.3s ease; }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    input, select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+
+    /* Pokémon Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      border: 2px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.15s ease;
+    }
+    .card:hover { transform: translateY(-2px); }
+
+    .card.is-hundo { border-color: var(--hundo); box-shadow: 0 0 8px rgba(239, 68, 68, 0.25); }
+    .card.is-lucky:not(.is-hundo) { border-color: var(--lucky); box-shadow: 0 0 8px rgba(234, 179, 8, 0.25); }
+    .card.is-shadow:not(.is-hundo):not(.is-lucky) { border-color: var(--shadow); }
+    .card.is-shiny:not(.is-hundo):not(.is-lucky):not(.is-shadow) { border-color: var(--shiny); }
+    .card.is-caught:not(.is-hundo):not(.is-lucky):not(.is-shadow):not(.is-shiny) { border-color: var(--caught); }
+
+    .card img { width: 75px; height: 75px; object-fit: contain; margin: 0 auto 4px; }
+    .dex-num { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+    .dex-name { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+    
+    a.info-link {
+      font-size: 11px;
+      color: var(--accent);
+      text-decoration: none;
+      margin-bottom: 8px;
+      display: inline-block;
+    }
+    a.info-link:hover { text-decoration: underline; }
+
+    /* Button Grid */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px;
+    }
+    .btn {
+      padding: 5px 2px;
+      border: 1px solid var(--card-border);
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+      background: #0b0f19;
+      color: var(--text-muted);
+      transition: all 0.12s ease;
+      white-space: nowrap;
+    }
+    .btn:hover { color: #fff; border-color: #64748b; }
+
+    .btn.active-caught   { background: var(--caught);   color: #022c22; border-color: var(--caught); }
+    .btn.active-shiny    { background: var(--shiny);    color: #451a03; border-color: var(--shiny); }
+    .btn.active-lucky    { background: var(--lucky);    color: #422006; border-color: var(--lucky); }
+    .btn.active-shadow   { background: var(--shadow);   color: #3b0764; border-color: var(--shadow); }
+    .btn.active-purified { background: var(--purified); color: #083344; border-color: var(--purified); }
+    .btn.active-hundo    { background: var(--hundo);    color: #450a0a; border-color: var(--hundo); }
+    .btn.active-nundo    { background: var(--nundo);    color: #0f172a; border-color: var(--nundo); }
+    .btn.active-xxs      { background: var(--xxs);      color: #500724; border-color: var(--xxs); }
+    .btn.active-xxl      { background: var(--xxl);      color: #2e1065; border-color: var(--xxl); }
+    .btn.active-event    { background: var(--event);    color: #042f2e; border-color: var(--event); }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <img src="./icon-192.png" alt="App Logo" class="header-logo" onerror="this.style.display='none'" />
+    <h1>Pokémon GO Master Living Dex</h1>
+    <p>Living Dex, Shinies, Luckies, Shadows, IVs, Sizes & Costumes</p>
+    
+    <div class="top-actions">
+      <div class="sync-status">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="syncText">Syncing live Pokédex...</span>
+      </div>
+      <button class="action-btn" onclick="exportBackup()">📥 Backup (JSON)</button>
+      <button class="action-btn" onclick="document.getElementById('restoreInput').click()">📤 Restore (JSON)</button>
+      <input type="file" id="restoreInput" accept=".json" style="display: none;" onchange="importBackup(event)" />
+    </div>
+  </div>
+
+  <div class="dashboard">
+    <div class="stats-grid">
+      <div class="stat-badge">Standard <strong class="c-caught" id="statCaught">0 / 0</strong></div>
+      <div class="stat-badge">Shiny <strong class="c-shiny" id="statShiny">0</strong></div>
+      <div class="stat-badge">Lucky <strong class="c-lucky" id="statLucky">0</strong></div>
+      <div class="stat-badge">Shadow <strong class="c-shadow" id="statShadow">0</strong></div>
+      <div class="stat-badge">Purified <strong class="c-purified" id="statPurified">0</strong></div>
+      <div class="stat-badge">100% IV <strong class="c-hundo" id="statHundo">0</strong></div>
+      <div class="stat-badge">0% IV <strong class="c-nundo" id="statNundo">0</strong></div>
+      <div class="stat-badge">XXS <strong class="c-xxs" id="statXxs">0</strong></div>
+      <div class="stat-badge">XXL <strong class="c-xxl" id="statXxl">0</strong></div>
+      <div class="stat-badge">Event <strong class="c-event" id="statEvent">0</strong></div>
+    </div>
+    <div class="bar-bg"><div class="bar-fill" id="progressBar"></div></div>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Search name or #..." />
+    <select id="genFilter">
+      <option value="all">All Generations</option>
+      <option value="1">Gen 1 (Kanto)</option>
+      <option value="2">Gen 2 (Johto)</option>
+      <option value="3">Gen 3 (Hoenn)</option>
+      <option value="4">Gen 4 (Sinnoh)</option>
+      <option value="5">Gen 5 (Unova)</option>
+      <option value="6">Gen 6 (Kalos)</option>
+      <option value="7">Gen 7 (Alola)</option>
+      <option value="8">Gen 8 (Galar)</option>
+      <option value="9">Gen 9 (Paldea)</option>
+      <option value="10">Gen 10+</option>
+    </select>
+    <select id="statusFilter">
+      <option value="all">Filter Status: All</option>
+      <option value="caught">Caught (Standard)</option>
+      <option value="missing">Missing (Standard)</option>
+      <option value="shiny">Shiny</option>
+      <option value="lucky">Lucky</option>
+      <option value="shadow">Shadow</option>
+      <option value="purified">Purified</option>
+      <option value="hundo">100% IV (Hundo)</option>
+      <option value="nundo">0% IV (Nundo)</option>
+      <option value="xxs">XXS</option>
+      <option value="xxl">XXL</option>
+      <option value="event">Event / Costume</option>
+    </select>
+  </div>
+
+  <div class="grid" id="pokemonGrid"></div>
+
+  <script>
+    const STORAGE_KEY = 'pogo_living_dex_tracker_v3';
+    const CACHE_META_KEY = 'pogo_last_known_count';
+    let savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    let allPokemon = [];
+
+    const TRACK_KEYS = ['caught', 'shiny', 'lucky', 'shadow', 'purified', 'hundo', 'nundo', 'xxs', 'xxl', 'event'];
+
+    function getGeneration(id) {
+      if (id <= 151) return 1;
+      if (id <= 251) return 2;
+      if (id <= 386) return 3;
+      if (id <= 493) return 4;
+      if (id <= 649) return 5;
+      if (id <= 721) return 6;
+      if (id <= 809) return 7;
+      if (id <= 905) return 8;
+      if (id <= 1025) return 9;
+      return 10;
+    }
+
+    async function initDex() {
+      const syncText = document.getElementById('syncText');
+      const syncDot = document.getElementById('syncDot');
+
+      try {
+        const countRes = await fetch('https://pokeapi.co/api/v2/pokemon-species?limit=1');
+        const countData = await countRes.json();
+        const liveCount = countData.count || 1025;
+
+        const lastCount = parseInt(localStorage.getItem(CACHE_META_KEY) || '0');
+        if (lastCount > 0 && liveCount > lastCount) {
+          syncText.innerText = `Auto-Updated! +${liveCount - lastCount} new Pokémon`;
+        } else {
+          syncText.innerText = `Up to date (${liveCount} Pokémon)`;
+        }
+        localStorage.setItem(CACHE_META_KEY, liveCount);
+
+        const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${liveCount}`);
+        const data = await res.json();
+        
+        allPokemon = data.results.map((p, idx) => {
+          const id = idx + 1;
+          return {
+            id,
+            name: p.name.charAt(0).toUpperCase() + p.name.slice(1),
+            slug: p.name,
+            gen: getGeneration(id),
+            sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
+          };
+        });
+
+        render();
+      } catch (err) {
+        syncDot.style.background = '#ef4444';
+        syncDot.style.boxShadow = '0 0 6px #ef4444';
+        syncText.innerText = 'Offline mode';
+        
+        if (allPokemon.length === 0) {
+          document.getElementById('pokemonGrid').innerHTML = '<p style="text-align:center;grid-column:1/-1;">Could not fetch the live Pokédex list. Please connect to the internet.</p>';
+        }
+      }
+    }
+
+    function render() {
+      const grid = document.getElementById('pokemonGrid');
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+      const gen = document.getElementById('genFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      const filtered = allPokemon.filter(p => {
+        const state = savedState[p.id] || {};
+        const matchesSearch = p.name.toLowerCase().includes(search) || String(p.id).includes(search);
+        const matchesGen = gen === 'all' || p.gen === parseInt(gen);
+
+        let matchesStatus = true;
+        if (status === 'missing') {
+          matchesStatus = !state.caught;
+        } else if (status !== 'all') {
+          matchesStatus = !!state[status];
+        }
+
+        return matchesSearch && matchesGen && matchesStatus;
+      });
+
+      grid.innerHTML = filtered.map(p => {
+        const state = savedState[p.id] || {};
+        
+        let cardClasses = ['card'];
+        if (state.hundo) cardClasses.push('is-hundo');
+        else if (state.lucky) cardClasses.push('is-lucky');
+        else if (state.shadow) cardClasses.push('is-shadow');
+        else if (state.shiny) cardClasses.push('is-shiny');
+        else if (state.caught) cardClasses.push('is-caught');
+
+        return `
+          <div class="${cardClasses.join(' ')}">
+            <div>
+              <div class="dex-num">#${String(p.id).padStart(3, '0')}</div>
+              <img src="${p.sprite}" alt="${p.name}" loading="lazy"/>
+              <div class="dex-name">${p.name}</div>
+              <a class="info-link" href="https://pokemon.gameinfo.io/en/pokemon/${p.id}-${p.slug}" target="_blank" rel="noopener">GameInfo ↗</a>
+            </div>
+            <div class="btn-grid">
+              <button class="btn ${state.caught ? 'active-caught' : ''}" onclick="toggleStatus(${p.id}, 'caught')">Caught</button>
+              <button class="btn ${state.shiny ? 'active-shiny' : ''}" onclick="toggleStatus(${p.id}, 'shiny')">✨ Shiny</button>
+              <button class="btn ${state.lucky ? 'active-lucky' : ''}" onclick="toggleStatus(${p.id}, 'lucky')">🍀 Lucky</button>
+              <button class="btn ${state.shadow ? 'active-shadow' : ''}" onclick="toggleStatus(${p.id}, 'shadow')">🔥 Shadow</button>
+              <button class="btn ${state.purified ? 'active-purified' : ''}" onclick="toggleStatus(${p.id}, 'purified')">✨ Purified</button>
+              <button class="btn ${state.hundo ? 'active-hundo' : ''}" onclick="toggleStatus(${p.id}, 'hundo')">💯 100%</button>
+              <button class="btn ${state.nundo ? 'active-nundo' : ''}" onclick="toggleStatus(${p.id}, 'nundo')">0️⃣ 0% IV</button>
+              <button class="btn ${state.xxs ? 'active-xxs' : ''}" onclick="toggleStatus(${p.id}, 'xxs')">📏 XXS</button>
+              <button class="btn ${state.xxl ? 'active-xxl' : ''}" onclick="toggleStatus(${p.id}, 'xxl')">📐 XXL</button>
+              <button class="btn ${state.event ? 'active-event' : ''}" onclick="toggleStatus(${p.id}, 'event')">🎀 Event</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateStats();
+    }
+
+    window.toggleStatus = (id, type) => {
+      if (!savedState[id]) savedState[id] = {};
+      
+      savedState[id][type] = !savedState[id][type];
+
+      if (savedState[id][type] && type !== 'caught') {
+        savedState[id].caught = true;
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
+      render();
+    };
+
+    function updateStats() {
+      const total = allPokemon.length;
+      const values = Object.values(savedState);
+      
+      const counts = {};
+      TRACK_KEYS.forEach(k => {
+        counts[k] = values.filter(s => s[k]).length;
+      });
+
+      const pct = total > 0 ? Math.round((counts.caught / total) * 100) : 0;
+
+      document.getElementById('statCaught').innerText = `${counts.caught} / ${total} (${pct}%)`;
+      document.getElementById('statShiny').innerText = counts.shiny;
+      document.getElementById('statLucky').innerText = counts.lucky;
+      document.getElementById('statShadow').innerText = counts.shadow;
+      document.getElementById('statPurified').innerText = counts.purified;
+      document.getElementById('statHundo').innerText = counts.hundo;
+      document.getElementById('statNundo').innerText = counts.nundo;
+      document.getElementById('statXxs').innerText = counts.xxs;
+      document.getElementById('statXxl').innerText = counts.xxl;
+      document.getElementById('statEvent').innerText = counts.event;
+
+      document.getElementById('progressBar').style.width = `${pct}%`;
+    }
+
+    // Backup & Restore
+    window.exportBackup = () => {
+      const dataStr = JSON.stringify(savedState, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const dateStr = new Date().toISOString().split('T')[0];
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `pogo_living_dex_backup_${dateStr}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+
+    window.importBackup = (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (typeof imported === 'object' && imported !== null) {
+            savedState = imported;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
+            render();
+            alert('Backup successfully restored!');
+          } else {
+            alert('Invalid backup file format.');
+          }
+        } catch (err) {
+          alert('Failed to read backup file.');
+        }
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    };
+
+    document.getElementById('searchInput').addEventListener('input', render);
+    document.getElementById('genFilter').addEventListener('change', render);
+    document.getElementById('statusFilter').addEventListener('change', render);
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    initDex();
+  </script>
+</body>
+</html>
