@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokemon GO Tracker</title>
+  <title>Pokemon GO Pokemon Tracker</title>
 
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./favicon.png" />
@@ -107,6 +107,47 @@
       background: #0369a1;
     }
 
+    /* Toggle Switch */
+    .toggle-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: #1e293b;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--card-border);
+      user-select: none;
+      cursor: pointer;
+    }
+    .toggle-wrap input { display: none; }
+    .toggle-pill {
+      width: 28px;
+      height: 14px;
+      background: #334155;
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.2s;
+    }
+    .toggle-pill::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #fff;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+    .toggle-wrap input:checked + .toggle-pill {
+      background: var(--caught);
+    }
+    .toggle-wrap input:checked + .toggle-pill::after {
+      transform: translateX(14px);
+    }
+
     /* Dashboard & Clickable Stat Badges */
     .dashboard {
       max-width: 1200px;
@@ -197,6 +238,7 @@
       flex-direction: column;
       justify-content: space-between;
       transition: transform 0.15s ease;
+      position: relative;
     }
     .card:hover { transform: translateY(-2px); }
 
@@ -207,6 +249,23 @@
     .card.is-shadow:not(.is-gmax):not(.is-dmax):not(.is-hundo):not(.is-lucky) { border-color: var(--shadow); }
     .card.is-shiny:not(.is-gmax):not(.is-dmax):not(.is-hundo):not(.is-lucky):not(.is-shadow) { border-color: var(--shiny); }
     .card.is-caught:not(.is-gmax):not(.is-dmax):not(.is-hundo):not(.is-lucky):not(.is-shadow):not(.is-shiny) { border-color: var(--caught); }
+
+    .regional-tag {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #0284c7;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    .regional-tag.alola { background: #06b6d4; }
+    .regional-tag.galar { background: #8b5cf6; }
+    .regional-tag.hisui { background: #d97706; }
+    .regional-tag.paldea { background: #ec4899; }
 
     .card img { width: 75px; height: 75px; object-fit: contain; margin: 0 auto 4px; }
     .dex-num { font-size: 11px; color: var(--text-muted); font-weight: 600; }
@@ -341,7 +400,6 @@
       gap: 6px;
     }
 
-    /* Name Pill States */
     .name-pill {
       padding: 6px 8px;
       border-radius: 6px;
@@ -357,6 +415,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+    
     .name-pill.is-obtained {
       background: #0b0f19;
       border: 1px solid #334155;
@@ -373,6 +432,7 @@
       font-size: 10px;
       margin-left: 4px;
     }
+
     .name-pill.is-missing {
       background: rgba(15, 23, 42, 0.4);
       border: 1px dashed #334155;
@@ -403,17 +463,9 @@
       margin-bottom: 14px;
       transition: border-color 0.2s;
     }
-    .ocr-dropzone:hover {
-      border-color: var(--accent);
-    }
-    .ocr-progress-box {
-      margin-top: 10px;
-      display: none;
-    }
-    .ocr-detected-box {
-      margin-top: 14px;
-      display: none;
-    }
+    .ocr-dropzone:hover { border-color: var(--accent); }
+    .ocr-progress-box { margin-top: 10px; display: none; }
+    .ocr-detected-box { margin-top: 14px; display: none; }
     .detected-item {
       display: flex;
       align-items: center;
@@ -443,16 +495,23 @@
     <img src="./icon-192.png" alt="App Logo" class="header-logo" onerror="this.style.display='none'" />
     <h1>Pokemon GO Pokemon Tracker</h1>
     <div class="credit">Created by: D.Aligaya</div>
-    <p class="subtitle">Living Dex, Shinies, Luckies, Sizes, Dynamax & OCR Auto-Scanner</p>
+    <p class="subtitle">Living Dex, Regional Forms, Evolution Cascade & OCR Auto-Scanner</p>
     
     <div class="top-actions">
       <div class="sync-status">
         <span class="sync-dot" id="syncDot"></span>
         <span id="syncText">Syncing live Pokédex...</span>
       </div>
-      <button class="action-btn ocr-btn" onclick="openOcrModal()">📷 Scan Screenshots (OCR)</button>
-      <button class="action-btn" onclick="exportBackup()">📥 Backup (JSON)</button>
-      <button class="action-btn" onclick="document.getElementById('restoreInput').click()">📤 Restore (JSON)</button>
+      
+      <label class="toggle-wrap" title="Checking a high-stage Pokémon automatically marks prior stages as Caught">
+        <input type="checkbox" id="cascadeToggle" checked />
+        <div class="toggle-pill"></div>
+        <span>Auto-Cascade Evolutions</span>
+      </label>
+
+      <button class="action-btn ocr-btn" onclick="openOcrModal()">📷 Scan OCR</button>
+      <button class="action-btn" onclick="exportBackup()">📥 Backup</button>
+      <button class="action-btn" onclick="document.getElementById('restoreInput').click()">📤 Restore</button>
       <input type="file" id="restoreInput" accept=".json" style="display: none;" onchange="importBackup(event)" />
     </div>
   </div>
@@ -478,7 +537,7 @@
   <div class="controls">
     <input type="text" id="searchInput" placeholder="Search name or #..." />
     <select id="genFilter">
-      <option value="all">All Generations</option>
+      <option value="all">All Generations & Forms</option>
       <option value="1">Gen 1 (Kanto)</option>
       <option value="2">Gen 2 (Johto)</option>
       <option value="3">Gen 3 (Hoenn)</option>
@@ -489,6 +548,12 @@
       <option value="8">Gen 8 (Galar)</option>
       <option value="9">Gen 9 (Paldea)</option>
       <option value="10">Gen 10+</option>
+      <optgroup label="Regional Forms">
+        <option value="alolan">Alolan Forms</option>
+        <option value="galarian">Galarian Forms</option>
+        <option value="hisuian">Hisuian Forms</option>
+        <option value="paldean">Paldean Forms</option>
+      </optgroup>
     </select>
     <select id="statusFilter">
       <option value="all">Filter Status: All</option>
@@ -540,10 +605,6 @@
       </div>
       
       <div class="modal-body">
-        <p style="color: var(--text-muted); font-size: 12px; margin-top: 0;">
-          Upload screenshots of your in-game Pokémon GO storage. The OCR scanner extracts the names and marks them in bulk.
-        </p>
-
         <div style="margin-bottom: 12px;">
           <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Assign Scanned Pokémon To Category:</label>
           <select id="ocrTargetCategory" style="width: 100%;">
@@ -565,7 +626,7 @@
         <div class="ocr-dropzone" onclick="document.getElementById('ocrFileInput').click()">
           <div style="font-size: 24px; margin-bottom: 4px;">📁</div>
           <strong style="color: var(--accent); font-size: 13px;">Click to Select Screenshot(s)</strong>
-          <div style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">Supports multiple PNG / JPG uploads</div>
+          <div style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">Supports multiple storage screenshots</div>
           <input type="file" id="ocrFileInput" accept="image/*" multiple style="display: none;" onchange="processOcrFiles(event)" />
         </div>
 
@@ -601,7 +662,87 @@
 
     const TRACK_KEYS = ['caught', 'shiny', 'lucky', 'shadow', 'purified', 'dmax', 'gmax', 'hundo', 'nundo', 'xxs', 'xxl', 'event'];
 
+    // Comprehensive Regional Form Catalog
+    const REGIONAL_FORMS = [
+      // Alolan Forms
+      { id: '19-alola', baseId: 19, name: 'Alolan Rattata', slug: 'rattata-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png', evolvesFrom: null },
+      { id: '20-alola', baseId: 20, name: 'Alolan Raticate', slug: 'raticate-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10092.png', evolvesFrom: '19-alola' },
+      { id: '26-alola', baseId: 26, name: 'Alolan Raichu', slug: 'raichu-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png', evolvesFrom: 25 },
+      { id: '27-alola', baseId: 27, name: 'Alolan Sandshrew', slug: 'sandshrew-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10101.png', evolvesFrom: null },
+      { id: '28-alola', baseId: 28, name: 'Alolan Sandslash', slug: 'sandslash-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10102.png', evolvesFrom: '27-alola' },
+      { id: '37-alola', baseId: 37, name: 'Alolan Vulpix', slug: 'vulpix-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10103.png', evolvesFrom: null },
+      { id: '38-alola', baseId: 38, name: 'Alolan Ninetales', slug: 'ninetales-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10104.png', evolvesFrom: '37-alola' },
+      { id: '50-alola', baseId: 50, name: 'Alolan Diglett', slug: 'diglett-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10105.png', evolvesFrom: null },
+      { id: '51-alola', baseId: 51, name: 'Alolan Dugtrio', slug: 'dugtrio-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10106.png', evolvesFrom: '50-alola' },
+      { id: '52-alola', baseId: 52, name: 'Alolan Meowth', slug: 'meowth-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10107.png', evolvesFrom: null },
+      { id: '53-alola', baseId: 53, name: 'Alolan Persian', slug: 'persian-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10108.png', evolvesFrom: '52-alola' },
+      { id: '74-alola', baseId: 74, name: 'Alolan Geodude', slug: 'geodude-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10109.png', evolvesFrom: null },
+      { id: '75-alola', baseId: 75, name: 'Alolan Graveler', slug: 'graveler-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10110.png', evolvesFrom: '74-alola' },
+      { id: '76-alola', baseId: 76, name: 'Alolan Golem', slug: 'golem-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10111.png', evolvesFrom: '75-alola' },
+      { id: '88-alola', baseId: 88, name: 'Alolan Grimer', slug: 'grimer-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10112.png', evolvesFrom: null },
+      { id: '89-alola', baseId: 89, name: 'Alolan Muk', slug: 'muk-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10113.png', evolvesFrom: '88-alola' },
+      { id: '103-alola', baseId: 103, name: 'Alolan Exeggutor', slug: 'exeggutor-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10114.png', evolvesFrom: 102 },
+      { id: '105-alola', baseId: 105, name: 'Alolan Marowak', slug: 'marowak-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10115.png', evolvesFrom: 104 },
+
+      // Galarian Forms
+      { id: '52-galar', baseId: 52, name: 'Galarian Meowth', slug: 'meowth-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10161.png', evolvesFrom: null },
+      { id: '77-galar', baseId: 77, name: 'Galarian Ponyta', slug: 'ponyta-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10162.png', evolvesFrom: null },
+      { id: '78-galar', baseId: 78, name: 'Galarian Rapidash', slug: 'rapidash-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10163.png', evolvesFrom: '77-galar' },
+      { id: '79-galar', baseId: 79, name: 'Galarian Slowpoke', slug: 'slowpoke-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10164.png', evolvesFrom: null },
+      { id: '80-galar', baseId: 80, name: 'Galarian Slowbro', slug: 'slowbro-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10165.png', evolvesFrom: '79-galar' },
+      { id: '83-galar', baseId: 83, name: 'Galarian Farfetch\'d', slug: 'farfetchd-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10166.png', evolvesFrom: null },
+      { id: '110-galar', baseId: 110, name: 'Galarian Weezing', slug: 'weezing-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10167.png', evolvesFrom: 109 },
+      { id: '122-galar', baseId: 122, name: 'Galarian Mr. Mime', slug: 'mr-mime-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10168.png', evolvesFrom: 439 },
+      { id: '144-galar', baseId: 144, name: 'Galarian Articuno', slug: 'articuno-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10169.png', evolvesFrom: null },
+      { id: '145-galar', baseId: 145, name: 'Galarian Zapdos', slug: 'zapdos-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10170.png', evolvesFrom: null },
+      { id: '146-galar', baseId: 146, name: 'Galarian Moltres', slug: 'moltres-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10171.png', evolvesFrom: null },
+      { id: '199-galar', baseId: 199, name: 'Galarian Slowking', slug: 'slowking-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10172.png', evolvesFrom: '79-galar' },
+      { id: '222-galar', baseId: 222, name: 'Galarian Corsola', slug: 'corsola-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10173.png', evolvesFrom: null },
+      { id: '263-galar', baseId: 263, name: 'Galarian Zigzagoon', slug: 'zigzagoon-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10174.png', evolvesFrom: null },
+      { id: '264-galar', baseId: 264, name: 'Galarian Linoone', slug: 'linoone-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10175.png', evolvesFrom: '263-galar' },
+      { id: '554-galar', baseId: 554, name: 'Galarian Darumaka', slug: 'darumaka-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10177.png', evolvesFrom: null },
+      { id: '555-galar', baseId: 555, name: 'Galarian Darmanitan', slug: 'darmanitan-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10178.png', evolvesFrom: '554-galar' },
+      { id: '562-galar', baseId: 562, name: 'Galarian Yamask', slug: 'yamask-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10179.png', evolvesFrom: null },
+      { id: '618-galar', baseId: 618, name: 'Galarian Stunfisk', slug: 'stunfisk-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10180.png', evolvesFrom: null },
+
+      // Hisuian Forms
+      { id: '58-hisui', baseId: 58, name: 'Hisuian Growlithe', slug: 'growlithe-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10229.png', evolvesFrom: null },
+      { id: '59-hisui', baseId: 59, name: 'Hisuian Arcanine', slug: 'arcanine-hisui', form: 'hisui', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10230.png', evolvesFrom: '58-hisui' },
+      { id: '100-hisui', baseId: 100, name: 'Hisuian Voltorb', slug: 'voltorb-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10231.png', evolvesFrom: null },
+      { id: '101-hisui', baseId: 101, name: 'Hisuian Electrode', slug: 'electrode-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10232.png', evolvesFrom: '100-hisui' },
+      { id: '157-hisui', baseId: 157, name: 'Hisuian Typhlosion', slug: 'typhlosion-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10233.png', evolvesFrom: 156 },
+      { id: '211-hisui', baseId: 211, name: 'Hisuian Qwilfish', slug: 'qwilfish-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10234.png', evolvesFrom: null },
+      { id: '215-hisui', baseId: 215, name: 'Hisuian Sneasel', slug: 'sneasel-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10235.png', evolvesFrom: null },
+      { id: '503-hisui', baseId: 503, name: 'Hisuian Samurott', slug: 'samurott-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10236.png', evolvesFrom: 502 },
+      { id: '549-hisui', baseId: 549, name: 'Hisuian Lilligant', slug: 'lilligant-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10237.png', evolvesFrom: 548 },
+      { id: '570-hisui', baseId: 570, name: 'Hisuian Zorua', slug: 'zorua-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10238.png', evolvesFrom: null },
+      { id: '571-hisui', baseId: 571, name: 'Hisuian Zoroark', slug: 'zoroark-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10239.png', evolvesFrom: '570-hisui' },
+      { id: '628-hisui', baseId: 628, name: 'Hisuian Braviary', slug: 'braviary-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10240.png', evolvesFrom: 627 },
+      { id: '705-hisui', baseId: 705, name: 'Hisuian Sliggoo', slug: 'sliggoo-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10241.png', evolvesFrom: 704 },
+      { id: '706-hisui', baseId: 706, name: 'Hisuian Goodra', slug: 'goodra-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10242.png', evolvesFrom: '705-hisui' },
+      { id: '713-hisui', baseId: 713, name: 'Hisuian Avalugg', slug: 'avalugg-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10243.png', evolvesFrom: 712 },
+      { id: '724-hisui', baseId: 724, name: 'Hisuian Decidueye', slug: 'decidueye-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10244.png', evolvesFrom: 723 },
+
+      // Paldean Forms
+      { id: '128-paldea', baseId: 128, name: 'Paldean Tauros', slug: 'tauros-paldea', form: 'paldean', gen: 9, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10250.png', evolvesFrom: null },
+      { id: '194-paldea', baseId: 194, name: 'Paldean Wooper', slug: 'wooper-paldea', form: 'paldean', gen: 9, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10253.png', evolvesFrom: null }
+    ];
+
+    // Evolutionary Ancestry Map (Higher Stage -> Immediate Pre-evolution)
+    const EVOLUTION_ANCESTRY = {
+      2: 1, 3: 2, 5: 4, 6: 5, 8: 7, 9: 8, 11: 10, 12: 11, 14: 13, 15: 14, 17: 16, 18: 17, 20: 19, 22: 21, 24: 23, 26: 25, 28: 27, 30: 29, 31: 30, 33: 32, 34: 33, 36: 35, 38: 37, 40: 39, 42: 41, 44: 43, 45: 44, 47: 46, 49: 48, 51: 50, 53: 52, 55: 54, 57: 56, 59: 58, 61: 60, 62: 61, 64: 63, 65: 64, 67: 66, 68: 67, 70: 69, 71: 70, 73: 72, 75: 74, 76: 75, 78: 77, 80: 79, 82: 81, 85: 84, 87: 86, 89: 88, 91: 90, 93: 92, 94: 93, 97: 96, 99: 98, 101: 100, 103: 102, 105: 104, 110: 109, 112: 111, 117: 116, 119: 118, 121: 120, 130: 129, 134: 133, 135: 133, 136: 133, 139: 138, 141: 140, 143: 446, 148: 147, 149: 148,
+      153: 152, 154: 153, 156: 155, 157: 156, 159: 158, 160: 159, 162: 161, 164: 163, 166: 165, 168: 167, 171: 170, 176: 175, 178: 177, 180: 179, 181: 180, 182: 44, 184: 183, 186: 61, 188: 187, 189: 188, 192: 191, 195: 194, 196: 133, 197: 133, 199: 79, 205: 204, 208: 95, 209: 208, 210: 209, 212: 123, 217: 216, 221: 220, 224: 223, 226: 458, 229: 228, 230: 117, 232: 231, 233: 137, 237: 236, 242: 113, 247: 246, 248: 247,
+      253: 252, 254: 253, 256: 255, 257: 256, 259: 258, 260: 259, 262: 261, 264: 263, 266: 265, 267: 266, 268: 265, 269: 268, 271: 270, 272: 271, 274: 273, 275: 274, 277: 276, 279: 278, 281: 280, 282: 281, 284: 283, 286: 285, 288: 287, 289: 288, 291: 290, 292: 290, 294: 293, 295: 294, 297: 296, 301: 300, 305: 304, 306: 305, 308: 307, 310: 309, 317: 316, 319: 318, 321: 320, 323: 322, 326: 325, 330: 329, 332: 331, 334: 333, 339: 338, 340: 339, 342: 341, 344: 343, 346: 345, 348: 347, 350: 349, 354: 353, 356: 355, 358: 433, 362: 361, 364: 363, 365: 364, 367: 366, 368: 366, 372: 371, 373: 372, 375: 374, 376: 375,
+      388: 387, 389: 388, 391: 390, 392: 391, 394: 393, 395: 394, 397: 396, 398: 397, 400: 399, 402: 401, 404: 403, 405: 404, 407: 315, 409: 408, 411: 410, 413: 412, 414: 412, 416: 415, 419: 418, 421: 420, 423: 422, 424: 190, 426: 425, 428: 427, 430: 198, 432: 431, 435: 434, 437: 436, 444: 443, 445: 444, 448: 447, 450: 449, 452: 451, 454: 453, 457: 456, 460: 459, 461: 215, 462: 82, 463: 108, 464: 112, 465: 114, 466: 125, 467: 126, 468: 176, 469: 193, 470: 133, 471: 133, 472: 207, 473: 221, 474: 233, 475: 281, 476: 299, 477: 356, 478: 361,
+      496: 495, 497: 496, 499: 498, 500: 499, 502: 501, 503: 502, 505: 504, 507: 506, 508: 507, 510: 509, 512: 511, 514: 513, 516: 515, 518: 517, 520: 519, 521: 520, 523: 522, 525: 524, 526: 525, 528: 527, 530: 529, 533: 532, 534: 533, 536: 535, 537: 536, 541: 540, 542: 541, 544: 543, 545: 544, 547: 546, 549: 548, 552: 551, 553: 552, 555: 554, 558: 557, 560: 559, 563: 562, 565: 564, 567: 566, 569: 568, 571: 570, 573: 572, 575: 574, 576: 575, 578: 577, 579: 578, 581: 580, 583: 582, 584: 583, 586: 585, 589: 588, 591: 590, 593: 592, 596: 595, 598: 597, 600: 599, 601: 600, 603: 602, 604: 603, 606: 605, 608: 607, 609: 608, 611: 610, 612: 611, 614: 613, 617: 616, 623: 622, 625: 624, 628: 627, 630: 629, 634: 633, 635: 634, 637: 636,
+      651: 650, 652: 651, 654: 653, 655: 654, 657: 656, 658: 657, 660: 659, 662: 661, 663: 662, 665: 664, 666: 665, 668: 667, 670: 669, 671: 670, 673: 672, 675: 674, 678: 677, 680: 679, 681: 680, 683: 682, 685: 684, 687: 686, 689: 688, 691: 690, 693: 692, 695: 694, 697: 696, 699: 698, 700: 133, 705: 704, 706: 705, 709: 708, 711: 710, 713: 712, 715: 714,
+      723: 722, 724: 723, 726: 725, 727: 726, 729: 728, 730: 729, 732: 731, 733: 732, 735: 734, 737: 736, 738: 737, 740: 739, 743: 742, 748: 747, 750: 749, 752: 751, 754: 753, 756: 755, 758: 757, 760: 759, 762: 761, 763: 762, 768: 767, 770: 769, 783: 782, 784: 783, 790: 789, 792: 791, 804: 803,
+      811: 810, 812: 811, 814: 813, 815: 814, 817: 816, 818: 817, 822: 821, 823: 822, 825: 824, 826: 825, 828: 827, 832: 831, 834: 833, 836: 835, 838: 837, 839: 838, 841: 840, 842: 840, 844: 843, 849: 848, 851: 850, 853: 852, 855: 854, 857: 856, 858: 857, 860: 859, 861: 860, 863: 52, 864: 222, 865: 83, 866: 122, 867: 562, 869: 868, 873: 872, 879: 878, 886: 885, 887: 886, 890: 889, 900: 211, 901: 900, 902: 585, 903: 215, 904: 211, 905: 642,
+      907: 906, 908: 907, 910: 909, 911: 910, 913: 912, 914: 913, 916: 915, 918: 917, 920: 919, 922: 921, 923: 922, 925: 924, 927: 926, 930: 929, 931: 930, 933: 932, 934: 933, 936: 935, 937: 935, 939: 938, 941: 940, 943: 942, 945: 944, 947: 946, 949: 948, 952: 951, 954: 953, 956: 955, 959: 958, 961: 960, 964: 963, 966: 965, 968: 967, 970: 969, 972: 971, 975: 974, 979: 978, 980: 128, 983: 982, 997: 996, 998: 997, 1000: 999
+    };
+
     function getGeneration(id) {
+      if (typeof id === 'string') return 8; // Regional forms default
       if (id <= 151) return 1;
       if (id <= 251) return 2;
       if (id <= 386) return 3;
@@ -627,23 +768,29 @@
         if (lastCount > 0 && liveCount > lastCount) {
           syncText.innerText = `Auto-Updated! +${liveCount - lastCount} new Pokémon`;
         } else {
-          syncText.innerText = `Up to date (${liveCount} Pokémon)`;
+          syncText.innerText = `Live: ${liveCount} species + ${REGIONAL_FORMS.length} regional forms`;
         }
         localStorage.setItem(CACHE_META_KEY, liveCount);
 
         const res = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${liveCount}`);
         const data = await res.json();
         
-        allPokemon = data.results.map((p, idx) => {
+        const standardList = data.results.map((p, idx) => {
           const id = idx + 1;
           return {
             id,
+            baseId: id,
             name: p.name.charAt(0).toUpperCase() + p.name.slice(1),
             slug: p.name,
             gen: getGeneration(id),
+            form: 'standard',
+            evolvesFrom: EVOLUTION_ANCESTRY[id] || null,
             sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
           };
         });
+
+        // Merge standard species + regional forms catalog
+        allPokemon = [...standardList, ...REGIONAL_FORMS];
 
         render();
       } catch (err) {
@@ -652,7 +799,7 @@
         syncText.innerText = 'Offline mode';
         
         if (allPokemon.length === 0) {
-          document.getElementById('pokemonGrid').innerHTML = '<p style="text-align:center;grid-column:1/-1;">Could not fetch the live Pokédex list. Please connect to the internet.</p>';
+          document.getElementById('pokemonGrid').innerHTML = '<p style="text-align:center;grid-column:1/-1;">Could not fetch Pokédex data. Please reconnect to internet.</p>';
         }
       }
     }
@@ -664,8 +811,15 @@
       const status = document.getElementById('statusFilter').value;
 
       currentContextPool = allPokemon.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(search) || String(p.id).includes(search);
-        const matchesGen = gen === 'all' || p.gen === parseInt(gen);
+        const matchesSearch = p.name.toLowerCase().includes(search) || String(p.baseId).includes(search);
+        
+        let matchesGen = true;
+        if (gen === 'alolan' || gen === 'galarian' || gen === 'hisuian' || gen === 'paldean') {
+          matchesGen = p.form === gen;
+        } else if (gen !== 'all') {
+          matchesGen = p.gen === parseInt(gen) && p.form === 'standard';
+        }
+
         return matchesSearch && matchesGen;
       });
 
@@ -688,33 +842,51 @@
         else if (state.shiny) cardClasses.push('is-shiny');
         else if (state.caught) cardClasses.push('is-caught');
 
+        let regionalBadge = '';
+        if (p.form === 'alolan') regionalBadge = '<span class="regional-tag alola">Alola</span>';
+        if (p.form === 'galarian') regionalBadge = '<span class="regional-tag galar">Galar</span>';
+        if (p.form === 'hisuian') regionalBadge = '<span class="regional-tag hisui">Hisui</span>';
+        if (p.form === 'paldean') regionalBadge = '<span class="regional-tag paldea">Paldea</span>';
+
         return `
           <div class="${cardClasses.join(' ')}">
+            ${regionalBadge}
             <div>
-              <div class="dex-num">#${String(p.id).padStart(3, '0')}</div>
+              <div class="dex-num">#${String(p.baseId).padStart(3, '0')}</div>
               <img src="${p.sprite}" alt="${p.name}" loading="lazy"/>
               <div class="dex-name">${p.name}</div>
-              <a class="info-link" href="https://pokemon.gameinfo.io/en/pokemon/${p.id}-${p.slug}" target="_blank" rel="noopener">GameInfo ↗</a>
+              <a class="info-link" href="https://pokemon.gameinfo.io/en/pokemon/${p.baseId}-${p.slug}" target="_blank" rel="noopener">GameInfo ↗</a>
             </div>
             <div class="btn-grid">
-              <button class="btn ${state.caught ? 'active-caught' : ''}" onclick="toggleStatus(${p.id}, 'caught')">Caught</button>
-              <button class="btn ${state.shiny ? 'active-shiny' : ''}" onclick="toggleStatus(${p.id}, 'shiny')">✨ Shiny</button>
-              <button class="btn ${state.lucky ? 'active-lucky' : ''}" onclick="toggleStatus(${p.id}, 'lucky')">🍀 Lucky</button>
-              <button class="btn ${state.shadow ? 'active-shadow' : ''}" onclick="toggleStatus(${p.id}, 'shadow')">🔥 Shadow</button>
-              <button class="btn ${state.purified ? 'active-purified' : ''}" onclick="toggleStatus(${p.id}, 'purified')">✨ Purified</button>
-              <button class="btn ${state.dmax ? 'active-dmax' : ''}" onclick="toggleStatus(${p.id}, 'dmax')">💥 D-Max</button>
-              <button class="btn ${state.gmax ? 'active-gmax' : ''}" onclick="toggleStatus(${p.id}, 'gmax')">⚡ G-Max</button>
-              <button class="btn ${state.hundo ? 'active-hundo' : ''}" onclick="toggleStatus(${p.id}, 'hundo')">💯 100%</button>
-              <button class="btn ${state.nundo ? 'active-nundo' : ''}" onclick="toggleStatus(${p.id}, 'nundo')">0️⃣ 0% IV</button>
-              <button class="btn ${state.xxs ? 'active-xxs' : ''}" onclick="toggleStatus(${p.id}, 'xxs')">📏 XXS</button>
-              <button class="btn ${state.xxl ? 'active-xxl' : ''}" onclick="toggleStatus(${p.id}, 'xxl')">📐 XXL</button>
-              <button class="btn ${state.event ? 'active-event' : ''}" onclick="toggleStatus(${p.id}, 'event')">🎀 Event</button>
+              <button class="btn ${state.caught ? 'active-caught' : ''}" onclick="toggleStatus('${p.id}', 'caught')">Caught</button>
+              <button class="btn ${state.shiny ? 'active-shiny' : ''}" onclick="toggleStatus('${p.id}', 'shiny')">✨ Shiny</button>
+              <button class="btn ${state.lucky ? 'active-lucky' : ''}" onclick="toggleStatus('${p.id}', 'lucky')">🍀 Lucky</button>
+              <button class="btn ${state.shadow ? 'active-shadow' : ''}" onclick="toggleStatus('${p.id}', 'shadow')">🔥 Shadow</button>
+              <button class="btn ${state.purified ? 'active-purified' : ''}" onclick="toggleStatus('${p.id}', 'purified')">✨ Purified</button>
+              <button class="btn ${state.dmax ? 'active-dmax' : ''}" onclick="toggleStatus('${p.id}', 'dmax')">💥 D-Max</button>
+              <button class="btn ${state.gmax ? 'active-gmax' : ''}" onclick="toggleStatus('${p.id}', 'gmax')">⚡ G-Max</button>
+              <button class="btn ${state.hundo ? 'active-hundo' : ''}" onclick="toggleStatus('${p.id}', 'hundo')">💯 100%</button>
+              <button class="btn ${state.nundo ? 'active-nundo' : ''}" onclick="toggleStatus('${p.id}', 'nundo')">0️⃣ 0% IV</button>
+              <button class="btn ${state.xxs ? 'active-xxs' : ''}" onclick="toggleStatus('${p.id}', 'xxs')">📏 XXS</button>
+              <button class="btn ${state.xxl ? 'active-xxl' : ''}" onclick="toggleStatus('${p.id}', 'xxl')">📐 XXL</button>
+              <button class="btn ${state.event ? 'active-event' : ''}" onclick="toggleStatus('${p.id}', 'event')">🎀 Event</button>
             </div>
           </div>
         `;
       }).join('');
 
       updateStats(currentContextPool);
+    }
+
+    // Evolution Cascade Function
+    function cascadeAutoCaught(pokemonId) {
+      let current = allPokemon.find(p => String(p.id) === String(pokemonId));
+      while (current && current.evolvesFrom) {
+        const parentId = current.evolvesFrom;
+        if (!savedState[parentId]) savedState[parentId] = {};
+        savedState[parentId].caught = true;
+        current = allPokemon.find(p => String(p.id) === String(parentId));
+      }
     }
 
     window.toggleStatus = (id, type) => {
@@ -724,6 +896,12 @@
 
       if (savedState[id][type] && type !== 'caught') {
         savedState[id].caught = true;
+      }
+
+      // Execute Evolution Cascade if enabled and Pokémon is marked as caught
+      const isCascadeEnabled = document.getElementById('cascadeToggle').checked;
+      if (isCascadeEnabled && savedState[id].caught) {
+        cascadeAutoCaught(id);
       }
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
@@ -816,7 +994,7 @@
               return `
                 <div class="name-pill ${isSet ? 'is-obtained' : 'is-missing'}">
                   <div class="name-pill-left">
-                    <span class="num">#${String(p.id).padStart(3, '0')}</span>${p.name}
+                    <span class="num">#${String(p.baseId).padStart(3, '0')}</span>${p.name}
                   </div>
                   <span class="status-icon">${isSet ? '✓' : '✕'}</span>
                 </div>
@@ -845,7 +1023,7 @@
 
       const textToCopy = listToCopy.map(p => {
         const isSet = savedState[p.id] && savedState[p.id][activeSummaryKey];
-        return `#${String(p.id).padStart(3, '0')} ${p.name} [${isSet ? 'Obtained' : 'Missing'}]`;
+        return `#${String(p.baseId).padStart(3, '0')} ${p.name} [${isSet ? 'Obtained' : 'Missing'}]`;
       }).join('\n');
 
       navigator.clipboard.writeText(textToCopy).then(() => {
@@ -857,14 +1035,9 @@
       });
     };
 
-    // --- Tesseract.js OCR Processing Engine ---
-    window.openOcrModal = () => {
-      document.getElementById('ocrModal').classList.add('active');
-    };
-
-    window.closeOcrModal = () => {
-      document.getElementById('ocrModal').classList.remove('active');
-    };
+    // OCR Handlers
+    window.openOcrModal = () => document.getElementById('ocrModal').classList.add('active');
+    window.closeOcrModal = () => document.getElementById('ocrModal').classList.remove('active');
 
     function levenshtein(a, b) {
       const matrix = [];
@@ -917,14 +1090,12 @@
             }
           });
 
-          // Clean OCR tokens
           const tokens = text
             .replace(/[^a-zA-Z0-9\s]/g, ' ')
             .split(/\s+/)
             .map(t => t.trim().toLowerCase())
             .filter(t => t.length >= 3);
 
-          // Fuzzy match against loaded Pokédex names
           allPokemon.forEach(poke => {
             if (foundIds.has(poke.id)) return;
             const targetName = poke.name.toLowerCase();
@@ -936,7 +1107,7 @@
                 break;
               } else if (targetName.length >= 5 && token.length >= 5) {
                 const dist = levenshtein(token, targetName);
-                if (dist <= 1) { // 1 typo tolerance
+                if (dist <= 1) {
                   foundIds.add(poke.id);
                   detectedOcrMatches.push(poke);
                   break;
@@ -954,33 +1125,38 @@
       document.getElementById('detectedCount').innerText = detectedOcrMatches.length;
 
       if (detectedOcrMatches.length === 0) {
-        detectedList.innerHTML = `<p style="color: var(--text-muted); font-size: 12px;">No recognizable Pokémon names detected. Try a clearer screenshot.</p>`;
+        detectedList.innerHTML = `<p style="color: var(--text-muted); font-size: 12px;">No recognizable Pokémon names detected.</p>`;
         applyBtn.disabled = true;
       } else {
         detectedList.innerHTML = detectedOcrMatches.map(p => `
           <label class="detected-item">
             <input type="checkbox" checked value="${p.id}" class="ocr-check-item" />
             <img src="${p.sprite}" style="width: 28px; height: 28px; object-fit: contain;" />
-            <span style="color: var(--accent); font-weight: bold;">#${String(p.id).padStart(3, '0')}</span>
+            <span style="color: var(--accent); font-weight: bold;">#${String(p.baseId).padStart(3, '0')}</span>
             <span style="font-weight: 600;">${p.name}</span>
           </label>
         `).join('');
         applyBtn.disabled = false;
       }
 
-      event.target.value = ''; // Reset file input
+      event.target.value = '';
     };
 
     window.applyOcrMatches = () => {
       const selectedCategory = document.getElementById('ocrTargetCategory').value;
       const checkedInputs = document.querySelectorAll('.ocr-check-item:checked');
+      const isCascadeEnabled = document.getElementById('cascadeToggle').checked;
       
       let count = 0;
       checkedInputs.forEach(input => {
-        const id = parseInt(input.value);
+        const id = input.value;
         if (!savedState[id]) savedState[id] = {};
         savedState[id][selectedCategory] = true;
         savedState[id].caught = true;
+
+        if (isCascadeEnabled) {
+          cascadeAutoCaught(id);
+        }
         count++;
       });
 
