@@ -270,8 +270,8 @@
       border: 1px solid var(--card-border);
       border-radius: 14px;
       width: 100%;
-      max-width: 550px;
-      max-height: 80vh;
+      max-width: 650px;
+      max-height: 85vh;
       display: flex;
       flex-direction: column;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -294,28 +294,98 @@
       padding: 4px;
     }
     .modal-close:hover { color: #fff; }
+
+    /* Modal Sub-Tabs (All, Caught, Missing) */
+    .modal-subtabs {
+      display: flex;
+      gap: 8px;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--card-border);
+      background: #0f172a;
+    }
+    .modal-tab-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--card-border);
+      background: #1e293b;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .modal-tab-btn.active {
+      background: var(--accent);
+      color: #0b0f19;
+      border-color: var(--accent);
+    }
+
     .modal-body {
       padding: 16px 18px;
       overflow-y: auto;
       font-size: 13px;
-      line-height: 1.6;
     }
     .modal-names-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 6px;
     }
+
+    /* Name Pill States */
     .name-pill {
-      background: #0b0f19;
-      padding: 4px 8px;
+      padding: 6px 8px;
       border-radius: 6px;
-      border: 1px solid var(--card-border);
-      color: var(--text);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
     }
-    .name-pill span { color: var(--text-muted); margin-right: 4px; }
+    .name-pill-left {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    /* Obtained / Checked in Badge */
+    .name-pill.is-obtained {
+      background: #0b0f19;
+      border: 1px solid #334155;
+      color: #f8fafc;
+      font-weight: 600;
+    }
+    .name-pill.is-obtained span.num {
+      color: var(--accent);
+      margin-right: 4px;
+      font-weight: 400;
+    }
+    .name-pill.is-obtained .status-icon {
+      color: var(--caught);
+      font-size: 10px;
+      margin-left: 4px;
+    }
+
+    /* Missing / Uncaught in Badge */
+    .name-pill.is-missing {
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px dashed #334155;
+      color: #64748b;
+      font-style: italic;
+    }
+    .name-pill.is-missing span.num {
+      color: #475569;
+      margin-right: 4px;
+      font-style: normal;
+    }
+    .name-pill.is-missing .status-icon {
+      color: #ef4444;
+      font-size: 10px;
+      margin-left: 4px;
+      font-style: normal;
+      opacity: 0.6;
+    }
+
     .modal-footer {
       padding: 12px 18px;
       border-top: 1px solid var(--card-border);
@@ -332,7 +402,7 @@
   <div class="header">
     <img src="./icon-192.png" alt="App Logo" class="header-logo" onerror="this.style.display='none'" />
     <h1>Pokémon GO Master Living Dex</h1>
-    <p>Click any badge below to view a quick text summary list</p>
+    <p>Click any badge below to view a comprehensive list</p>
     
     <div class="top-actions">
       <div class="sync-status">
@@ -401,11 +471,19 @@
   <div class="modal-overlay" id="summaryModal" onclick="closeSummary(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <h3 id="modalTitle">Badge Summary</h3>
+        <h3 id="modalTitle">Category Summary</h3>
         <button class="modal-close" onclick="closeSummary()">&times;</button>
       </div>
+      
+      <div class="modal-subtabs">
+        <button class="modal-tab-btn active" id="tabAll" onclick="setModalTab('all')">All (<span id="countTabAll">0</span>)</button>
+        <button class="modal-tab-btn" id="tabObtained" onclick="setModalTab('obtained')">Obtained (<span id="countTabObtained">0</span>)</button>
+        <button class="modal-tab-btn" id="tabMissing" onclick="setModalTab('missing')">Missing (<span id="countTabMissing">0</span>)</button>
+      </div>
+
       <div class="modal-body" id="modalBody">
         </div>
+      
       <div class="modal-footer">
         <span id="modalCountText" style="font-size: 12px; color: var(--text-muted);">0 Pokémon</span>
         <button class="action-btn" id="copyBtn" onclick="copyModalNames()">📋 Copy Names</button>
@@ -419,7 +497,10 @@
     let savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     let allPokemon = [];
     let currentContextPool = [];
-    let currentModalNamesList = [];
+    
+    let activeSummaryKey = 'caught';
+    let activeSummaryTitle = '';
+    let activeModalSubtab = 'all';
 
     const TRACK_KEYS = ['caught', 'shiny', 'lucky', 'shadow', 'purified', 'dmax', 'gmax', 'hundo', 'nundo', 'xxs', 'xxl', 'event'];
 
@@ -550,6 +631,9 @@
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
       render();
+      if (document.getElementById('summaryModal').classList.contains('active')) {
+        renderModalBody();
+      }
     };
 
     function updateStats(pool) {
@@ -581,47 +665,92 @@
       document.getElementById('progressBar').style.width = `${pct}%`;
     }
 
-    // Modal / Summary Viewer
+    // Modal Summary Viewer
     window.showSummary = (categoryKey, title) => {
-      const modal = document.getElementById('summaryModal');
-      const modalTitle = document.getElementById('modalTitle');
+      activeSummaryKey = categoryKey;
+      activeSummaryTitle = title;
+      activeModalSubtab = 'all';
+
+      document.getElementById('modalTitle').innerText = `${title} (In View)`;
+      document.getElementById('summaryModal').classList.add('active');
+      
+      renderModalBody();
+    };
+
+    window.setModalTab = (tab) => {
+      activeModalSubtab = tab;
+      document.querySelectorAll('.modal-tab-btn').forEach(btn => btn.classList.remove('active'));
+      if (tab === 'all') document.getElementById('tabAll').classList.add('active');
+      if (tab === 'obtained') document.getElementById('tabObtained').classList.add('active');
+      if (tab === 'missing') document.getElementById('tabMissing').classList.add('active');
+      renderModalBody();
+    };
+
+    function renderModalBody() {
       const modalBody = document.getElementById('modalBody');
       const modalCountText = document.getElementById('modalCountText');
 
-      modalTitle.innerText = `${title} (In Current View)`;
+      const obtained = [];
+      const missing = [];
 
-      const matchedList = currentContextPool.filter(p => {
+      currentContextPool.forEach(p => {
         const state = savedState[p.id];
-        return state && state[categoryKey];
+        const isSet = state && state[activeSummaryKey];
+        if (isSet) obtained.push(p);
+        else missing.push(p);
       });
 
-      currentModalNamesList = matchedList.map(p => `#${String(p.id).padStart(3, '0')} ${p.name}`);
+      document.getElementById('countTabAll').innerText = currentContextPool.length;
+      document.getElementById('countTabObtained').innerText = obtained.length;
+      document.getElementById('countTabMissing').innerText = missing.length;
 
-      if (matchedList.length === 0) {
-        modalBody.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 20px 0;">No Pokémon marked under this category in the current view.</p>`;
+      let listToRender = currentContextPool;
+      if (activeModalSubtab === 'obtained') listToRender = obtained;
+      if (activeModalSubtab === 'missing') listToRender = missing;
+
+      if (listToRender.length === 0) {
+        modalBody.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 30px 0;">No Pokémon matching this filter tab.</p>`;
       } else {
         modalBody.innerHTML = `
           <div class="modal-names-list">
-            ${matchedList.map(p => `
-              <div class="name-pill">
-                <span>#${String(p.id).padStart(3, '0')}</span>${p.name}
-              </div>
-            `).join('')}
+            ${listToRender.map(p => {
+              const state = savedState[p.id];
+              const isSet = state && state[activeSummaryKey];
+              return `
+                <div class="name-pill ${isSet ? 'is-obtained' : 'is-missing'}">
+                  <div class="name-pill-left">
+                    <span class="num">#${String(p.id).padStart(3, '0')}</span>${p.name}
+                  </div>
+                  <span class="status-icon">${isSet ? '✓' : '✕'}</span>
+                </div>
+              `;
+            }).join('')}
           </div>
         `;
       }
 
-      modalCountText.innerText = `${matchedList.length} of ${currentContextPool.length} Pokémon`;
-      modal.classList.add('active');
-    };
+      modalCountText.innerText = `Showing ${listToRender.length} of ${currentContextPool.length} in current view`;
+    }
 
     window.closeSummary = () => {
       document.getElementById('summaryModal').classList.remove('active');
     };
 
     window.copyModalNames = () => {
-      if (currentModalNamesList.length === 0) return;
-      const textToCopy = currentModalNamesList.join('\n');
+      let listToCopy = currentContextPool;
+      if (activeModalSubtab === 'obtained') {
+        listToCopy = currentContextPool.filter(p => savedState[p.id] && savedState[p.id][activeSummaryKey]);
+      } else if (activeModalSubtab === 'missing') {
+        listToCopy = currentContextPool.filter(p => !(savedState[p.id] && savedState[p.id][activeSummaryKey]));
+      }
+
+      if (listToCopy.length === 0) return;
+
+      const textToCopy = listToCopy.map(p => {
+        const isSet = savedState[p.id] && savedState[p.id][activeSummaryKey];
+        return `#${String(p.id).padStart(3, '0')} ${p.name} [${isSet ? 'Obtained' : 'Missing'}]`;
+      }).join('\n');
+
       navigator.clipboard.writeText(textToCopy).then(() => {
         const copyBtn = document.getElementById('copyBtn');
         copyBtn.innerText = '✅ Copied!';
