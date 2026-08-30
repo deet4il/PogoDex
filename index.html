@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon GO Master Living Dex</title>
+  <title>Pokemon GO Pokemon Tracker</title>
 
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./favicon.png" />
@@ -47,8 +47,9 @@
 
     .header { text-align: center; margin-bottom: 12px; }
     .header-logo { width: 56px; height: 56px; border-radius: 12px; vertical-align: middle; margin-bottom: 6px; }
-    .header h1 { margin: 0 0 4px 0; font-size: 22px; }
-    .header p { margin: 0; color: var(--text-muted); font-size: 13px; }
+    .header h1 { margin: 0 0 2px 0; font-size: 22px; }
+    .header .credit { margin: 0 0 6px 0; color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+    .header p.subtitle { margin: 0; color: var(--text-muted); font-size: 13px; }
 
     /* Top Action Bar (Sync + Backup/Restore) */
     .top-actions {
@@ -401,8 +402,9 @@
 
   <div class="header">
     <img src="./icon-192.png" alt="App Logo" class="header-logo" onerror="this.style.display='none'" />
-    <h1>Pokémon GO Master Living Dex</h1>
-    <p>Click any badge below to view a comprehensive list</p>
+    <h1>Pokemon GO Pokemon Tracker</h1>
+    <div class="credit">Created by: D.Aligaya</div>
+    <p class="subtitle">Click any badge below to view a comprehensive list</p>
     
     <div class="top-actions">
       <div class="sync-status">
@@ -774,7 +776,7 @@
       const dateStr = new Date().toISOString().split('T')[0];
       const link = document.createElement('a');
       link.href = url;
-      link.download = `pogo_living_dex_backup_${dateStr}.json`;
+      link.download = `pogo_pokemon_tracker_backup_${dateStr}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
