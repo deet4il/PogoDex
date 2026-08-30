@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokemon GO Pokemon Tracker</title>
+  <title>Pokemon GO Tracker</title>
 
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./favicon.png" />
@@ -11,6 +11,8 @@
   <meta name="theme-color" content="#0b0f19" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <style>
     :root {
@@ -51,12 +53,12 @@
     .header .credit { margin: 0 0 6px 0; color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
     .header p.subtitle { margin: 0; color: var(--text-muted); font-size: 13px; }
 
-    /* Top Action Bar (Sync + Backup/Restore) */
+    /* Top Action Bar */
     .top-actions {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       margin-top: 10px;
     }
@@ -95,6 +97,14 @@
     .action-btn:hover {
       background: #243046;
       border-color: var(--accent);
+    }
+    .action-btn.ocr-btn {
+      background: #0284c7;
+      color: #fff;
+      border-color: #38bdf8;
+    }
+    .action-btn.ocr-btn:hover {
+      background: #0369a1;
     }
 
     /* Dashboard & Clickable Stat Badges */
@@ -244,7 +254,7 @@
     .btn.active-xxl      { background: var(--xxl);      color: #2e1065; border-color: var(--xxl); }
     .btn.active-event    { background: var(--event);    color: #042f2e; border-color: var(--event); }
 
-    /* Summary Modal Styles */
+    /* Modals (Summary & OCR Scanner) */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -296,7 +306,6 @@
     }
     .modal-close:hover { color: #fff; }
 
-    /* Modal Sub-Tabs (All, Caught, Missing) */
     .modal-subtabs {
       display: flex;
       gap: 8px;
@@ -348,8 +357,6 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    
-    /* Obtained / Checked in Badge */
     .name-pill.is-obtained {
       background: #0b0f19;
       border: 1px solid #334155;
@@ -366,8 +373,6 @@
       font-size: 10px;
       margin-left: 4px;
     }
-
-    /* Missing / Uncaught in Badge */
     .name-pill.is-missing {
       background: rgba(15, 23, 42, 0.4);
       border: 1px dashed #334155;
@@ -387,6 +392,40 @@
       opacity: 0.6;
     }
 
+    /* OCR Scan Zone */
+    .ocr-dropzone {
+      border: 2px dashed var(--card-border);
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+      background: #0b0f19;
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    .ocr-dropzone:hover {
+      border-color: var(--accent);
+    }
+    .ocr-progress-box {
+      margin-top: 10px;
+      display: none;
+    }
+    .ocr-detected-box {
+      margin-top: 14px;
+      display: none;
+    }
+    .detected-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #0f172a;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
     .modal-footer {
       padding: 12px 18px;
       border-top: 1px solid var(--card-border);
@@ -404,13 +443,14 @@
     <img src="./icon-192.png" alt="App Logo" class="header-logo" onerror="this.style.display='none'" />
     <h1>Pokemon GO Pokemon Tracker</h1>
     <div class="credit">Created by: D.Aligaya</div>
-    <p class="subtitle">Click any badge below to view a comprehensive list</p>
+    <p class="subtitle">Living Dex, Shinies, Luckies, Sizes, Dynamax & OCR Auto-Scanner</p>
     
     <div class="top-actions">
       <div class="sync-status">
         <span class="sync-dot" id="syncDot"></span>
         <span id="syncText">Syncing live Pokédex...</span>
       </div>
+      <button class="action-btn ocr-btn" onclick="openOcrModal()">📷 Scan Screenshots (OCR)</button>
       <button class="action-btn" onclick="exportBackup()">📥 Backup (JSON)</button>
       <button class="action-btn" onclick="document.getElementById('restoreInput').click()">📤 Restore (JSON)</button>
       <input type="file" id="restoreInput" accept=".json" style="display: none;" onchange="importBackup(event)" />
@@ -483,12 +523,66 @@
         <button class="modal-tab-btn" id="tabMissing" onclick="setModalTab('missing')">Missing (<span id="countTabMissing">0</span>)</button>
       </div>
 
-      <div class="modal-body" id="modalBody">
-        </div>
+      <div class="modal-body" id="modalBody"></div>
       
       <div class="modal-footer">
         <span id="modalCountText" style="font-size: 12px; color: var(--text-muted);">0 Pokémon</span>
         <button class="action-btn" id="copyBtn" onclick="copyModalNames()">📋 Copy Names</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ocrModal" onclick="closeOcrModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📷 OCR Bulk Screenshot Scanner</h3>
+        <button class="modal-close" onclick="closeOcrModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 12px; margin-top: 0;">
+          Upload screenshots of your in-game Pokémon GO storage. The OCR scanner extracts the names and marks them in bulk.
+        </p>
+
+        <div style="margin-bottom: 12px;">
+          <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Assign Scanned Pokémon To Category:</label>
+          <select id="ocrTargetCategory" style="width: 100%;">
+            <option value="caught">Standard (Caught)</option>
+            <option value="shiny" selected>✨ Shiny</option>
+            <option value="lucky">🍀 Lucky</option>
+            <option value="shadow">🔥 Shadow</option>
+            <option value="purified">✨ Purified</option>
+            <option value="dmax">💥 Dynamax (D-Max)</option>
+            <option value="gmax">⚡ Gigantamax (G-Max)</option>
+            <option value="hundo">💯 100% IV (Hundo)</option>
+            <option value="nundo">0️⃣ 0% IV (Nundo)</option>
+            <option value="xxs">📏 XXS</option>
+            <option value="xxl">📐 XXL</option>
+            <option value="event">🎀 Event / Costume</option>
+          </select>
+        </div>
+
+        <div class="ocr-dropzone" onclick="document.getElementById('ocrFileInput').click()">
+          <div style="font-size: 24px; margin-bottom: 4px;">📁</div>
+          <strong style="color: var(--accent); font-size: 13px;">Click to Select Screenshot(s)</strong>
+          <div style="color: var(--text-muted); font-size: 11px; margin-top: 2px;">Supports multiple PNG / JPG uploads</div>
+          <input type="file" id="ocrFileInput" accept="image/*" multiple style="display: none;" onchange="processOcrFiles(event)" />
+        </div>
+
+        <div class="ocr-progress-box" id="ocrProgressBox">
+          <div style="font-size: 12px; color: var(--accent); margin-bottom: 4px;" id="ocrStatusText">Processing image...</div>
+          <div class="bar-bg"><div class="bar-fill" id="ocrProgressBar" style="width: 0%;"></div></div>
+        </div>
+
+        <div class="ocr-detected-box" id="ocrDetectedBox">
+          <h4 style="margin: 10px 0 6px 0; font-size: 13px;">Recognized Pokémon (<span id="detectedCount">0</span>):</h4>
+          <div id="detectedList" style="max-height: 180px; overflow-y: auto;"></div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <span style="font-size: 11px; color: var(--text-muted);">Uncheck any misreads above</span>
+        <button class="action-btn ocr-btn" id="applyOcrBtn" onclick="applyOcrMatches()" disabled>✅ Apply to Tracker</button>
       </div>
     </div>
   </div>
@@ -499,7 +593,8 @@
     let savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     let allPokemon = [];
     let currentContextPool = [];
-    
+    let detectedOcrMatches = [];
+
     let activeSummaryKey = 'caught';
     let activeSummaryTitle = '';
     let activeModalSubtab = 'all';
@@ -762,9 +857,145 @@
       });
     };
 
+    // --- Tesseract.js OCR Processing Engine ---
+    window.openOcrModal = () => {
+      document.getElementById('ocrModal').classList.add('active');
+    };
+
+    window.closeOcrModal = () => {
+      document.getElementById('ocrModal').classList.remove('active');
+    };
+
+    function levenshtein(a, b) {
+      const matrix = [];
+      for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+      for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+      for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+          if (b.charAt(i - 1) === a.charAt(j - 1)) {
+            matrix[i][j] = matrix[i - 1][j - 1];
+          } else {
+            matrix[i][j] = Math.min(
+              matrix[i - 1][j - 1] + 1,
+              Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
+            );
+          }
+        }
+      }
+      return matrix[b.length][a.length];
+    }
+
+    window.processOcrFiles = async (event) => {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      const progressBox = document.getElementById('ocrProgressBox');
+      const progressBar = document.getElementById('ocrProgressBar');
+      const statusText = document.getElementById('ocrStatusText');
+      const detectedBox = document.getElementById('ocrDetectedBox');
+      const detectedList = document.getElementById('detectedList');
+      const applyBtn = document.getElementById('applyOcrBtn');
+
+      progressBox.style.display = 'block';
+      detectedBox.style.display = 'none';
+      applyBtn.disabled = true;
+
+      detectedOcrMatches = [];
+      const foundIds = new Set();
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        statusText.innerText = `Scanning image ${i + 1} of ${files.length}...`;
+
+        try {
+          const { data: { text } } = await Tesseract.recognize(file, 'eng', {
+            logger: m => {
+              if (m.status === 'recognizing text') {
+                const pct = Math.round((m.progress || 0) * 100);
+                progressBar.style.width = `${pct}%`;
+              }
+            }
+          });
+
+          // Clean OCR tokens
+          const tokens = text
+            .replace(/[^a-zA-Z0-9\s]/g, ' ')
+            .split(/\s+/)
+            .map(t => t.trim().toLowerCase())
+            .filter(t => t.length >= 3);
+
+          // Fuzzy match against loaded Pokédex names
+          allPokemon.forEach(poke => {
+            if (foundIds.has(poke.id)) return;
+            const targetName = poke.name.toLowerCase();
+
+            for (const token of tokens) {
+              if (token === targetName) {
+                foundIds.add(poke.id);
+                detectedOcrMatches.push(poke);
+                break;
+              } else if (targetName.length >= 5 && token.length >= 5) {
+                const dist = levenshtein(token, targetName);
+                if (dist <= 1) { // 1 typo tolerance
+                  foundIds.add(poke.id);
+                  detectedOcrMatches.push(poke);
+                  break;
+                }
+              }
+            }
+          });
+        } catch (err) {
+          console.error("OCR Scan Error:", err);
+        }
+      }
+
+      progressBox.style.display = 'none';
+      detectedBox.style.display = 'block';
+      document.getElementById('detectedCount').innerText = detectedOcrMatches.length;
+
+      if (detectedOcrMatches.length === 0) {
+        detectedList.innerHTML = `<p style="color: var(--text-muted); font-size: 12px;">No recognizable Pokémon names detected. Try a clearer screenshot.</p>`;
+        applyBtn.disabled = true;
+      } else {
+        detectedList.innerHTML = detectedOcrMatches.map(p => `
+          <label class="detected-item">
+            <input type="checkbox" checked value="${p.id}" class="ocr-check-item" />
+            <img src="${p.sprite}" style="width: 28px; height: 28px; object-fit: contain;" />
+            <span style="color: var(--accent); font-weight: bold;">#${String(p.id).padStart(3, '0')}</span>
+            <span style="font-weight: 600;">${p.name}</span>
+          </label>
+        `).join('');
+        applyBtn.disabled = false;
+      }
+
+      event.target.value = ''; // Reset file input
+    };
+
+    window.applyOcrMatches = () => {
+      const selectedCategory = document.getElementById('ocrTargetCategory').value;
+      const checkedInputs = document.querySelectorAll('.ocr-check-item:checked');
+      
+      let count = 0;
+      checkedInputs.forEach(input => {
+        const id = parseInt(input.value);
+        if (!savedState[id]) savedState[id] = {};
+        savedState[id][selectedCategory] = true;
+        savedState[id].caught = true;
+        count++;
+      });
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
+      render();
+      closeOcrModal();
+      alert(`Successfully added ${count} Pokémon to ${selectedCategory.toUpperCase()}!`);
+    };
+
     // Close on Escape key
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeSummary();
+      if (e.key === 'Escape') {
+        closeSummary();
+        closeOcrModal();
+      }
     });
 
     // Backup & Restore Handlers
