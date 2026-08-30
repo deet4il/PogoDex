@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokemon GO Pokemon Tracker</title>
+  <title>Pokemon GO Tracker</title>
 
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./favicon.png" />
@@ -49,9 +49,8 @@
 
     .header { text-align: center; margin-bottom: 12px; }
     .header-logo { width: 56px; height: 56px; border-radius: 12px; vertical-align: middle; margin-bottom: 6px; }
-    .header h1 { margin: 0 0 2px 0; font-size: 22px; }
-    .header .credit { margin: 0 0 6px 0; color: var(--accent); font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
-    .header p.subtitle { margin: 0; color: var(--text-muted); font-size: 13px; }
+    .header h1 { margin: 0 0 2px 0; font-size: 24px; }
+    .header .credit { margin: 0 0 4px 0; color: var(--accent); font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
 
     /* Top Action Bar */
     .top-actions {
@@ -98,14 +97,14 @@
       background: #243046;
       border-color: var(--accent);
     }
-    .action-btn.ocr-btn {
-      background: #0284c7;
-      color: #fff;
-      border-color: #38bdf8;
+    .action-btn.medal-btn {
+      background: #78350f;
+      border-color: #f59e0b;
+      color: #fef08a;
     }
-    .action-btn.ocr-btn:hover {
-      background: #0369a1;
-    }
+    .action-btn.medal-btn:hover { background: #92400e; }
+    .action-btn.ocr-btn { background: #0284c7; color: #fff; border-color: #38bdf8; }
+    .action-btn.ocr-btn:hover { background: #0369a1; }
 
     /* Toggle Switch */
     .toggle-wrap {
@@ -141,12 +140,8 @@
       left: 2px;
       transition: transform 0.2s;
     }
-    .toggle-wrap input:checked + .toggle-pill {
-      background: var(--caught);
-    }
-    .toggle-wrap input:checked + .toggle-pill::after {
-      transform: translateX(14px);
-    }
+    .toggle-wrap input:checked + .toggle-pill { background: var(--caught); }
+    .toggle-wrap input:checked + .toggle-pill::after { transform: translateX(14px); }
 
     /* Dashboard & Clickable Stat Badges */
     .dashboard {
@@ -250,7 +245,7 @@
     .card.is-shiny:not(.is-gmax):not(.is-dmax):not(.is-hundo):not(.is-lucky):not(.is-shadow) { border-color: var(--shiny); }
     .card.is-caught:not(.is-gmax):not(.is-dmax):not(.is-hundo):not(.is-lucky):not(.is-shadow):not(.is-shiny) { border-color: var(--caught); }
 
-    .regional-tag {
+    .badge-tag {
       position: absolute;
       top: 8px;
       right: 8px;
@@ -262,10 +257,16 @@
       color: #fff;
       text-transform: uppercase;
     }
-    .regional-tag.alola { background: #06b6d4; }
-    .regional-tag.galar { background: #8b5cf6; }
-    .regional-tag.hisui { background: #d97706; }
-    .regional-tag.paldea { background: #ec4899; }
+    .badge-tag.alola { background: #06b6d4; }
+    .badge-tag.galar { background: #8b5cf6; }
+    .badge-tag.hisui { background: #d97706; }
+    .badge-tag.paldea { background: #ec4899; }
+    .badge-tag.mega { background: #f43f5e; }
+    .badge-tag.gender { background: #3b82f6; }
+    .badge-tag.unown { background: #64748b; }
+    .badge-tag.spinda { background: #e11d48; }
+    .badge-tag.furfrou { background: #14b8a6; }
+    .badge-tag.vivillon { background: #a855f7; }
 
     .card img { width: 75px; height: 75px; object-fit: contain; margin: 0 auto 4px; }
     .dex-num { font-size: 11px; color: var(--text-muted); font-weight: 600; }
@@ -313,7 +314,7 @@
     .btn.active-xxl      { background: var(--xxl);      color: #2e1065; border-color: var(--xxl); }
     .btn.active-event    { background: var(--event);    color: #042f2e; border-color: var(--event); }
 
-    /* Modals (Summary & OCR Scanner) */
+    /* Modals & Medals */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -331,10 +332,7 @@
       pointer-events: none;
       transition: opacity 0.2s ease;
     }
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
     .modal-content {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -415,42 +413,52 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    
     .name-pill.is-obtained {
       background: #0b0f19;
       border: 1px solid #334155;
       color: #f8fafc;
       font-weight: 600;
     }
-    .name-pill.is-obtained span.num {
-      color: var(--accent);
-      margin-right: 4px;
-      font-weight: 400;
-    }
-    .name-pill.is-obtained .status-icon {
-      color: var(--caught);
-      font-size: 10px;
-      margin-left: 4px;
-    }
-
+    .name-pill.is-obtained span.num { color: var(--accent); margin-right: 4px; }
+    .name-pill.is-obtained .status-icon { color: var(--caught); font-size: 10px; }
     .name-pill.is-missing {
       background: rgba(15, 23, 42, 0.4);
       border: 1px dashed #334155;
       color: #64748b;
       font-style: italic;
     }
-    .name-pill.is-missing span.num {
-      color: #475569;
-      margin-right: 4px;
-      font-style: normal;
+    .name-pill.is-missing span.num { color: #475569; margin-right: 4px; }
+    .name-pill.is-missing .status-icon { color: #ef4444; font-size: 10px; opacity: 0.6; }
+
+    /* Medals & Gamification Styles */
+    .medals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
     }
-    .name-pill.is-missing .status-icon {
-      color: #ef4444;
-      font-size: 10px;
-      margin-left: 4px;
-      font-style: normal;
-      opacity: 0.6;
+    .medal-card {
+      background: #0b0f19;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
+    .medal-icon-wrap {
+      font-size: 32px;
+      min-width: 44px;
+      text-align: center;
+      filter: drop-shadow(0 0 6px rgba(0,0,0,0.5));
+    }
+    .medal-info { flex: 1; }
+    .medal-title { font-weight: bold; font-size: 13px; margin-bottom: 2px; }
+    .medal-tier { font-size: 11px; font-weight: 600; text-transform: uppercase; margin-bottom: 6px; }
+    .tier-none { color: #64748b; }
+    .tier-bronze { color: #d97706; }
+    .tier-silver { color: #cbd5e1; }
+    .tier-gold { color: #f59e0b; }
+    .tier-platinum { color: #38bdf8; text-shadow: 0 0 6px rgba(56, 189, 248, 0.5); }
 
     /* OCR Scan Zone */
     .ocr-dropzone {
@@ -493,20 +501,21 @@
 
   <div class="header">
     <img src="./icon-192.png" alt="App Logo" class="header-logo" onerror="this.style.display='none'" />
-    <h1>Pokemon GO Pokemon Tracker</h1>
+    <h1>Pokemon GO Tracker</h1>
     <div class="credit">Created by: D.Aligaya</div>
-    <p class="subtitle">Living Dex, Regional Forms, Evolution Cascade & OCR Auto-Scanner</p>
     
     <div class="top-actions">
       <div class="sync-status">
         <span class="sync-dot" id="syncDot"></span>
         <span id="syncText">Syncing live Pokédex...</span>
       </div>
+
+      <button class="action-btn medal-btn" onclick="openMedalsModal()">🏆 Progress Medals</button>
       
       <label class="toggle-wrap" title="Checking a high-stage Pokémon automatically marks prior stages as Caught">
         <input type="checkbox" id="cascadeToggle" checked />
         <div class="toggle-pill"></div>
-        <span>Auto-Cascade Evolutions</span>
+        <span>Auto-Cascade</span>
       </label>
 
       <button class="action-btn ocr-btn" onclick="openOcrModal()">📷 Scan OCR</button>
@@ -548,6 +557,14 @@
       <option value="8">Gen 8 (Galar)</option>
       <option value="9">Gen 9 (Paldea)</option>
       <option value="10">Gen 10+</option>
+      <optgroup label="Special Forms & Mega">
+        <option value="mega">Mega & Primal Evolutions</option>
+        <option value="gender">Gender Differences (♂ / ♀)</option>
+        <option value="unown">Unown Alphabet (A-Z, ?, !)</option>
+        <option value="spinda">Spinda Patterns (1-9)</option>
+        <option value="furfrou">Furfrou Trims (10 Trims)</option>
+        <option value="vivillon">Vivillon Patterns (18 Wings)</option>
+      </optgroup>
       <optgroup label="Regional Forms">
         <option value="alolan">Alolan Forms</option>
         <option value="galarian">Galarian Forms</option>
@@ -593,6 +610,22 @@
       <div class="modal-footer">
         <span id="modalCountText" style="font-size: 12px; color: var(--text-muted);">0 Pokémon</span>
         <button class="action-btn" id="copyBtn" onclick="copyModalNames()">📋 Copy Names</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="medalsModal" onclick="closeMedalsModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 750px;">
+      <div class="modal-header">
+        <h3>🏆 Collection Medals & Milestones</h3>
+        <button class="modal-close" onclick="closeMedalsModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="medals-grid" id="medalsContainer"></div>
+      </div>
+      <div class="modal-footer">
+        <span style="font-size: 11px; color: var(--text-muted);">🥉 Bronze: 50% | 🥈 Silver: 75% | 🥇 Gold: 90% | 💎 Platinum: 100%</span>
+        <button class="action-btn" onclick="closeMedalsModal()">Close</button>
       </div>
     </div>
   </div>
@@ -662,9 +695,8 @@
 
     const TRACK_KEYS = ['caught', 'shiny', 'lucky', 'shadow', 'purified', 'dmax', 'gmax', 'hundo', 'nundo', 'xxs', 'xxl', 'event'];
 
-    // Comprehensive Regional Form Catalog
+    // 1. Regional Forms Catalog
     const REGIONAL_FORMS = [
-      // Alolan Forms
       { id: '19-alola', baseId: 19, name: 'Alolan Rattata', slug: 'rattata-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10091.png', evolvesFrom: null },
       { id: '20-alola', baseId: 20, name: 'Alolan Raticate', slug: 'raticate-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10092.png', evolvesFrom: '19-alola' },
       { id: '26-alola', baseId: 26, name: 'Alolan Raichu', slug: 'raichu-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10100.png', evolvesFrom: 25 },
@@ -684,7 +716,7 @@
       { id: '103-alola', baseId: 103, name: 'Alolan Exeggutor', slug: 'exeggutor-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10114.png', evolvesFrom: 102 },
       { id: '105-alola', baseId: 105, name: 'Alolan Marowak', slug: 'marowak-alola', form: 'alolan', gen: 7, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10115.png', evolvesFrom: 104 },
 
-      // Galarian Forms
+      // Galarian
       { id: '52-galar', baseId: 52, name: 'Galarian Meowth', slug: 'meowth-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10161.png', evolvesFrom: null },
       { id: '77-galar', baseId: 77, name: 'Galarian Ponyta', slug: 'ponyta-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10162.png', evolvesFrom: null },
       { id: '78-galar', baseId: 78, name: 'Galarian Rapidash', slug: 'rapidash-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10163.png', evolvesFrom: '77-galar' },
@@ -705,9 +737,9 @@
       { id: '562-galar', baseId: 562, name: 'Galarian Yamask', slug: 'yamask-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10179.png', evolvesFrom: null },
       { id: '618-galar', baseId: 618, name: 'Galarian Stunfisk', slug: 'stunfisk-galar', form: 'galarian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10180.png', evolvesFrom: null },
 
-      // Hisuian Forms
+      // Hisuian
       { id: '58-hisui', baseId: 58, name: 'Hisuian Growlithe', slug: 'growlithe-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10229.png', evolvesFrom: null },
-      { id: '59-hisui', baseId: 59, name: 'Hisuian Arcanine', slug: 'arcanine-hisui', form: 'hisui', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10230.png', evolvesFrom: '58-hisui' },
+      { id: '59-hisui', baseId: 59, name: 'Hisuian Arcanine', slug: 'arcanine-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10230.png', evolvesFrom: '58-hisui' },
       { id: '100-hisui', baseId: 100, name: 'Hisuian Voltorb', slug: 'voltorb-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10231.png', evolvesFrom: null },
       { id: '101-hisui', baseId: 101, name: 'Hisuian Electrode', slug: 'electrode-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10232.png', evolvesFrom: '100-hisui' },
       { id: '157-hisui', baseId: 157, name: 'Hisuian Typhlosion', slug: 'typhlosion-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10233.png', evolvesFrom: 156 },
@@ -723,12 +755,133 @@
       { id: '713-hisui', baseId: 713, name: 'Hisuian Avalugg', slug: 'avalugg-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10243.png', evolvesFrom: 712 },
       { id: '724-hisui', baseId: 724, name: 'Hisuian Decidueye', slug: 'decidueye-hisui', form: 'hisuian', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10244.png', evolvesFrom: 723 },
 
-      // Paldean Forms
+      // Paldean
       { id: '128-paldea', baseId: 128, name: 'Paldean Tauros', slug: 'tauros-paldea', form: 'paldean', gen: 9, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10250.png', evolvesFrom: null },
       { id: '194-paldea', baseId: 194, name: 'Paldean Wooper', slug: 'wooper-paldea', form: 'paldean', gen: 9, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10253.png', evolvesFrom: null }
     ];
 
-    // Evolutionary Ancestry Map (Higher Stage -> Immediate Pre-evolution)
+    // 2. Mega Evolutions
+    const MEGA_FORMS = [
+      { id: '3-mega', baseId: 3, name: 'Mega Venusaur', slug: 'venusaur-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10033.png' },
+      { id: '6-mega-x', baseId: 6, name: 'Mega Charizard X', slug: 'charizard-mega-x', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10034.png' },
+      { id: '6-mega-y', baseId: 6, name: 'Mega Charizard Y', slug: 'charizard-mega-y', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10035.png' },
+      { id: '9-mega', baseId: 9, name: 'Mega Blastoise', slug: 'blastoise-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10036.png' },
+      { id: '15-mega', baseId: 15, name: 'Mega Beedrill', slug: 'beedrill-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10090.png' },
+      { id: '18-mega', baseId: 18, name: 'Mega Pidgeot', slug: 'pidgeot-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10073.png' },
+      { id: '65-mega', baseId: 65, name: 'Mega Alakazam', slug: 'alakazam-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10037.png' },
+      { id: '80-mega', baseId: 80, name: 'Mega Slowbro', slug: 'slowbro-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10071.png' },
+      { id: '94-mega', baseId: 94, name: 'Mega Gengar', slug: 'gengar-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10038.png' },
+      { id: '115-mega', baseId: 115, name: 'Mega Kangaskhan', slug: 'kangaskhan-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10039.png' },
+      { id: '127-mega', baseId: 127, name: 'Mega Pinsir', slug: 'pinsir-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10040.png' },
+      { id: '130-mega', baseId: 130, name: 'Mega Gyarados', slug: 'gyarados-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10041.png' },
+      { id: '142-mega', baseId: 142, name: 'Mega Aerodactyl', slug: 'aerodactyl-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10042.png' },
+      { id: '150-mega-x', baseId: 150, name: 'Mega Mewtwo X', slug: 'mewtwo-mega-x', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10043.png' },
+      { id: '150-mega-y', baseId: 150, name: 'Mega Mewtwo Y', slug: 'mewtwo-mega-y', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10044.png' },
+      { id: '181-mega', baseId: 181, name: 'Mega Ampharos', slug: 'ampharos-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10045.png' },
+      { id: '208-mega', baseId: 208, name: 'Mega Steelix', slug: 'steelix-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10072.png' },
+      { id: '212-mega', baseId: 212, name: 'Mega Scizor', slug: 'scizor-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10046.png' },
+      { id: '214-mega', baseId: 214, name: 'Mega Heracross', slug: 'heracross-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10047.png' },
+      { id: '229-mega', baseId: 229, name: 'Mega Houndoom', slug: 'houndoom-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10048.png' },
+      { id: '248-mega', baseId: 248, name: 'Mega Tyranitar', slug: 'tyranitar-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10049.png' },
+      { id: '254-mega', baseId: 254, name: 'Mega Sceptile', slug: 'sceptile-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10065.png' },
+      { id: '257-mega', baseId: 257, name: 'Mega Blaziken', slug: 'blaziken-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10050.png' },
+      { id: '260-mega', baseId: 260, name: 'Mega Swampert', slug: 'swampert-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10064.png' },
+      { id: '282-mega', baseId: 282, name: 'Mega Gardevoir', slug: 'gardevoir-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10051.png' },
+      { id: '302-mega', baseId: 302, name: 'Mega Sableye', slug: 'sableye-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10066.png' },
+      { id: '303-mega', baseId: 303, name: 'Mega Mawile', slug: 'mawile-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10052.png' },
+      { id: '306-mega', baseId: 306, name: 'Mega Aggron', slug: 'aggron-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10053.png' },
+      { id: '308-mega', baseId: 308, name: 'Mega Medicham', slug: 'medicham-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10054.png' },
+      { id: '310-mega', baseId: 310, name: 'Mega Manectric', slug: 'manectric-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10055.png' },
+      { id: '319-mega', baseId: 319, name: 'Mega Sharpedo', slug: 'sharpedo-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10070.png' },
+      { id: '323-mega', baseId: 323, name: 'Mega Camerupt', slug: 'camerupt-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10087.png' },
+      { id: '334-mega', baseId: 334, name: 'Mega Altaria', slug: 'altaria-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10067.png' },
+      { id: '354-mega', baseId: 354, name: 'Mega Banette', slug: 'banette-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10056.png' },
+      { id: '359-mega', baseId: 359, name: 'Mega Absol', slug: 'absol-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10057.png' },
+      { id: '362-mega', baseId: 362, name: 'Mega Glalie', slug: 'glalie-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10074.png' },
+      { id: '373-mega', baseId: 373, name: 'Mega Salamence', slug: 'salamence-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10089.png' },
+      { id: '376-mega', baseId: 376, name: 'Mega Metagross', slug: 'metagross-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10076.png' },
+      { id: '380-mega', baseId: 380, name: 'Mega Latias', slug: 'latias-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10062.png' },
+      { id: '381-mega', baseId: 381, name: 'Mega Latios', slug: 'latios-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10063.png' },
+      { id: '382-primal', baseId: 382, name: 'Primal Kyogre', slug: 'kyogre-primal', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10077.png' },
+      { id: '383-primal', baseId: 383, name: 'Primal Groudon', slug: 'groudon-primal', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10078.png' },
+      { id: '384-mega', baseId: 384, name: 'Mega Rayquaza', slug: 'rayquaza-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10079.png' },
+      { id: '428-mega', baseId: 428, name: 'Mega Lopunny', slug: 'lopunny-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10088.png' },
+      { id: '445-mega', baseId: 445, name: 'Mega Garchomp', slug: 'garchomp-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10058.png' },
+      { id: '448-mega', baseId: 448, name: 'Mega Lucario', slug: 'lucario-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10059.png' },
+      { id: '460-mega', baseId: 460, name: 'Mega Abomasnow', slug: 'abomasnow-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10060.png' },
+      { id: '475-mega', baseId: 475, name: 'Mega Gallade', slug: 'gallade-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10068.png' },
+      { id: '531-mega', baseId: 531, name: 'Mega Audino', slug: 'audino-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10069.png' },
+      { id: '719-mega', baseId: 719, name: 'Mega Diancie', slug: 'diancie-mega', form: 'mega', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10075.png' }
+    ];
+
+    // 3. Gender Differences
+    const GENDER_FORMS = [
+      { id: '521-m', baseId: 521, name: 'Unfezant (Male ♂)', slug: 'unfezant', form: 'gender', gen: 5, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/521.png' },
+      { id: '521-f', baseId: 521, name: 'Unfezant (Female ♀)', slug: 'unfezant-female', form: 'gender', gen: 5, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/female/521.png' },
+      { id: '592-m', baseId: 592, name: 'Frillish (Male ♂)', slug: 'frillish', form: 'gender', gen: 5, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/592.png' },
+      { id: '592-f', baseId: 592, name: 'Frillish (Female ♀)', slug: 'frillish-female', form: 'gender', gen: 5, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/female/592.png' },
+      { id: '593-m', baseId: 593, name: 'Jellicent (Male ♂)', slug: 'jellicent', form: 'gender', gen: 5, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/593.png' },
+      { id: '593-f', baseId: 593, name: 'Jellicent (Female ♀)', slug: 'jellicent-female', form: 'gender', gen: 5, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/female/593.png' },
+      { id: '668-m', baseId: 668, name: 'Pyroar (Male ♂)', slug: 'pyroar', form: 'gender', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/668.png' },
+      { id: '668-f', baseId: 668, name: 'Pyroar (Female ♀)', slug: 'pyroar-female', form: 'gender', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/female/668.png' },
+      { id: '678-m', baseId: 678, name: 'Meowstic (Male ♂)', slug: 'meowstic-male', form: 'gender', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/678.png' },
+      { id: '678-f', baseId: 678, name: 'Meowstic (Female ♀)', slug: 'meowstic-female', form: 'gender', gen: 6, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10025.png' },
+      { id: '876-m', baseId: 876, name: 'Indeedee (Male ♂)', slug: 'indeedee-male', form: 'gender', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/876.png' },
+      { id: '876-f', baseId: 876, name: 'Indeedee (Female ♀)', slug: 'indeedee-female', form: 'gender', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10186.png' },
+      { id: '902-m', baseId: 902, name: 'Basculegion (Male ♂)', slug: 'basculegion-male', form: 'gender', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/902.png' },
+      { id: '902-f', baseId: 902, name: 'Basculegion (Female ♀)', slug: 'basculegion-female', form: 'gender', gen: 8, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10248.png' },
+      { id: '916-m', baseId: 916, name: 'Oinkologne (Male ♂)', slug: 'oinkologne', form: 'gender', gen: 9, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/916.png' },
+      { id: '916-f', baseId: 916, name: 'Oinkologne (Female ♀)', slug: 'oinkologne-female', form: 'gender', gen: 9, sprite: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/10254.png' }
+    ];
+
+    // 4. Unown Alphabet (A-Z, ?, !)
+    const UNOWN_LETTERS = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','question','exclamation'];
+    const UNOWN_FORMS = UNOWN_LETTERS.map(letter => ({
+      id: `201-${letter}`,
+      baseId: 201,
+      name: `Unown (${letter.toUpperCase()})`,
+      slug: `unown-${letter}`,
+      form: 'unown',
+      gen: 2,
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/201.png`
+    }));
+
+    // 5. Spinda Patterns (1 - 9)
+    const SPINDA_FORMS = Array.from({ length: 9 }, (_, i) => ({
+      id: `327-pattern-${i + 1}`,
+      baseId: 327,
+      name: `Spinda (Pattern #${i + 1})`,
+      slug: `spinda`,
+      form: 'spinda',
+      gen: 3,
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/327.png`
+    }));
+
+    // 6. Furfrou Trims (10 Trims)
+    const FURFROU_TRIMS = ['Natural', 'Heart', 'Star', 'Diamond', 'Debutante', 'Matron', 'Dandy', 'La Reine', 'Kabuki', 'Pharaoh'];
+    const FURFROU_FORMS = FURFROU_TRIMS.map(trim => ({
+      id: `676-${trim.toLowerCase()}`,
+      baseId: 676,
+      name: `Furfrou (${trim} Trim)`,
+      slug: `furfrou`,
+      form: 'furfrou',
+      gen: 6,
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/676.png`
+    }));
+
+    // 7. Vivillon Patterns (18 Wings)
+    const VIVILLON_PATTERNS = ['Archipelago', 'Continental', 'Elegant', 'Garden', 'High Plains', 'Icy Snow', 'Jungle', 'Marine', 'Meadow', 'Modern', 'Monsoon', 'Ocean', 'Polar', 'River', 'Sandstorm', 'Savanna', 'Sun', 'Tundra'];
+    const VIVILLON_FORMS = VIVILLON_PATTERNS.map(pat => ({
+      id: `666-${pat.toLowerCase()}`,
+      baseId: 666,
+      name: `Vivillon (${pat} Pattern)`,
+      slug: `vivillon`,
+      form: 'vivillon',
+      gen: 6,
+      sprite: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/666.png`
+    }));
+
+    // Evolution Ancestry Mapping
     const EVOLUTION_ANCESTRY = {
       2: 1, 3: 2, 5: 4, 6: 5, 8: 7, 9: 8, 11: 10, 12: 11, 14: 13, 15: 14, 17: 16, 18: 17, 20: 19, 22: 21, 24: 23, 26: 25, 28: 27, 30: 29, 31: 30, 33: 32, 34: 33, 36: 35, 38: 37, 40: 39, 42: 41, 44: 43, 45: 44, 47: 46, 49: 48, 51: 50, 53: 52, 55: 54, 57: 56, 59: 58, 61: 60, 62: 61, 64: 63, 65: 64, 67: 66, 68: 67, 70: 69, 71: 70, 73: 72, 75: 74, 76: 75, 78: 77, 80: 79, 82: 81, 85: 84, 87: 86, 89: 88, 91: 90, 93: 92, 94: 93, 97: 96, 99: 98, 101: 100, 103: 102, 105: 104, 110: 109, 112: 111, 117: 116, 119: 118, 121: 120, 130: 129, 134: 133, 135: 133, 136: 133, 139: 138, 141: 140, 143: 446, 148: 147, 149: 148,
       153: 152, 154: 153, 156: 155, 157: 156, 159: 158, 160: 159, 162: 161, 164: 163, 166: 165, 168: 167, 171: 170, 176: 175, 178: 177, 180: 179, 181: 180, 182: 44, 184: 183, 186: 61, 188: 187, 189: 188, 192: 191, 195: 194, 196: 133, 197: 133, 199: 79, 205: 204, 208: 95, 209: 208, 210: 209, 212: 123, 217: 216, 221: 220, 224: 223, 226: 458, 229: 228, 230: 117, 232: 231, 233: 137, 237: 236, 242: 113, 247: 246, 248: 247,
@@ -742,7 +895,7 @@
     };
 
     function getGeneration(id) {
-      if (typeof id === 'string') return 8; // Regional forms default
+      if (typeof id === 'string') return 8;
       if (id <= 151) return 1;
       if (id <= 251) return 2;
       if (id <= 386) return 3;
@@ -766,9 +919,9 @@
 
         const lastCount = parseInt(localStorage.getItem(CACHE_META_KEY) || '0');
         if (lastCount > 0 && liveCount > lastCount) {
-          syncText.innerText = `Auto-Updated! +${liveCount - lastCount} new Pokémon`;
+          syncText.innerText = `Auto-Updated! +${liveCount - lastCount} new species`;
         } else {
-          syncText.innerText = `Live: ${liveCount} species + ${REGIONAL_FORMS.length} regional forms`;
+          syncText.innerText = `Up to date (${liveCount} species + all variants)`;
         }
         localStorage.setItem(CACHE_META_KEY, liveCount);
 
@@ -789,8 +942,17 @@
           };
         });
 
-        // Merge standard species + regional forms catalog
-        allPokemon = [...standardList, ...REGIONAL_FORMS];
+        // Combine all variant cohorts
+        allPokemon = [
+          ...standardList,
+          ...REGIONAL_FORMS,
+          ...MEGA_FORMS,
+          ...GENDER_FORMS,
+          ...UNOWN_FORMS,
+          ...SPINDA_FORMS,
+          ...FURFROU_FORMS,
+          ...VIVILLON_FORMS
+        ];
 
         render();
       } catch (err) {
@@ -814,7 +976,7 @@
         const matchesSearch = p.name.toLowerCase().includes(search) || String(p.baseId).includes(search);
         
         let matchesGen = true;
-        if (gen === 'alolan' || gen === 'galarian' || gen === 'hisuian' || gen === 'paldean') {
+        if (['alolan','galarian','hisuian','paldean','mega','gender','unown','spinda','furfrou','vivillon'].includes(gen)) {
           matchesGen = p.form === gen;
         } else if (gen !== 'all') {
           matchesGen = p.gen === parseInt(gen) && p.form === 'standard';
@@ -842,15 +1004,21 @@
         else if (state.shiny) cardClasses.push('is-shiny');
         else if (state.caught) cardClasses.push('is-caught');
 
-        let regionalBadge = '';
-        if (p.form === 'alolan') regionalBadge = '<span class="regional-tag alola">Alola</span>';
-        if (p.form === 'galarian') regionalBadge = '<span class="regional-tag galar">Galar</span>';
-        if (p.form === 'hisuian') regionalBadge = '<span class="regional-tag hisui">Hisui</span>';
-        if (p.form === 'paldean') regionalBadge = '<span class="regional-tag paldea">Paldea</span>';
+        let badgeTag = '';
+        if (p.form === 'alolan') badgeTag = '<span class="badge-tag alola">Alola</span>';
+        else if (p.form === 'galarian') badgeTag = '<span class="badge-tag galar">Galar</span>';
+        else if (p.form === 'hisuian') badgeTag = '<span class="badge-tag hisui">Hisui</span>';
+        else if (p.form === 'paldean') badgeTag = '<span class="badge-tag paldea">Paldea</span>';
+        else if (p.form === 'mega') badgeTag = '<span class="badge-tag mega">Mega</span>';
+        else if (p.form === 'gender') badgeTag = '<span class="badge-tag gender">Form ♂♀</span>';
+        else if (p.form === 'unown') badgeTag = '<span class="badge-tag unown">Letter</span>';
+        else if (p.form === 'spinda') badgeTag = '<span class="badge-tag spinda">Spot</span>';
+        else if (p.form === 'furfrou') badgeTag = '<span class="badge-tag furfrou">Trim</span>';
+        else if (p.form === 'vivillon') badgeTag = '<span class="badge-tag vivillon">Wing</span>';
 
         return `
           <div class="${cardClasses.join(' ')}">
-            ${regionalBadge}
+            ${badgeTag}
             <div>
               <div class="dex-num">#${String(p.baseId).padStart(3, '0')}</div>
               <img src="${p.sprite}" alt="${p.name}" loading="lazy"/>
@@ -878,7 +1046,6 @@
       updateStats(currentContextPool);
     }
 
-    // Evolution Cascade Function
     function cascadeAutoCaught(pokemonId) {
       let current = allPokemon.find(p => String(p.id) === String(pokemonId));
       while (current && current.evolvesFrom) {
@@ -898,7 +1065,6 @@
         savedState[id].caught = true;
       }
 
-      // Execute Evolution Cascade if enabled and Pokémon is marked as caught
       const isCascadeEnabled = document.getElementById('cascadeToggle').checked;
       if (isCascadeEnabled && savedState[id].caught) {
         cascadeAutoCaught(id);
@@ -948,7 +1114,6 @@
 
       document.getElementById('modalTitle').innerText = `${title} (In View)`;
       document.getElementById('summaryModal').classList.add('active');
-      
       renderModalBody();
     };
 
@@ -1033,6 +1198,76 @@
           copyBtn.innerText = '📋 Copy Names';
         }, 1500);
       });
+    };
+
+    // --- Medals & Gamification Engine ---
+    window.openMedalsModal = () => {
+      const container = document.getElementById('medalsContainer');
+      
+      const cohorts = [
+        { name: 'Gen 1 (Kanto)', filter: p => p.gen === 1 && p.form === 'standard' },
+        { name: 'Gen 2 (Johto)', filter: p => p.gen === 2 && p.form === 'standard' },
+        { name: 'Gen 3 (Hoenn)', filter: p => p.gen === 3 && p.form === 'standard' },
+        { name: 'Gen 4 (Sinnoh)', filter: p => p.gen === 4 && p.form === 'standard' },
+        { name: 'Gen 5 (Unova)', filter: p => p.gen === 5 && p.form === 'standard' },
+        { name: 'Gen 6 (Kalos)', filter: p => p.gen === 6 && p.form === 'standard' },
+        { name: 'Gen 7 (Alola)', filter: p => p.gen === 7 && p.form === 'standard' },
+        { name: 'Gen 8 (Galar)', filter: p => p.gen === 8 && p.form === 'standard' },
+        { name: 'Gen 9 (Paldea)', filter: p => p.gen === 9 && p.form === 'standard' },
+        { name: 'Regional Forms', filter: p => ['alolan','galarian','hisuian','paldean'].includes(p.form) },
+        { name: 'Mega Evolutions', filter: p => p.form === 'mega' },
+        { name: 'Gender Variants', filter: p => p.form === 'gender' },
+        { name: 'Unown Alphabet', filter: p => p.form === 'unown' },
+        { name: 'Spinda Patterns', filter: p => p.form === 'spinda' },
+        { name: 'Furfrou Trims', filter: p => p.form === 'furfrou' },
+        { name: 'Vivillon Wings', filter: p => p.form === 'vivillon' }
+      ];
+
+      container.innerHTML = cohorts.map(c => {
+        const cohortList = allPokemon.filter(c.filter);
+        const total = cohortList.length;
+        const caught = cohortList.filter(p => savedState[p.id] && savedState[p.id].caught).length;
+        const pct = total > 0 ? Math.round((caught / total) * 100) : 0;
+
+        let icon = '⚪';
+        let tierClass = 'tier-none';
+        let tierName = 'Incomplete';
+
+        if (pct >= 100) {
+          icon = '💎';
+          tierClass = 'tier-platinum';
+          tierName = 'Platinum (100%)';
+        } else if (pct >= 90) {
+          icon = '🥇';
+          tierClass = 'tier-gold';
+          tierName = 'Gold (90%)';
+        } else if (pct >= 75) {
+          icon = '🥈';
+          tierClass = 'tier-silver';
+          tierName = 'Silver (75%)';
+        } else if (pct >= 50) {
+          icon = '🥉';
+          tierClass = 'tier-bronze';
+          tierName = 'Bronze (50%)';
+        }
+
+        return `
+          <div class="medal-card">
+            <div class="medal-icon-wrap">${icon}</div>
+            <div class="medal-info">
+              <div class="medal-title">${c.name}</div>
+              <div class="medal-tier ${tierClass}">${tierName} • ${caught}/${total} (${pct}%)</div>
+              <div class="bar-bg"><div class="bar-fill" style="width: ${pct}%;"></div></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('medalsModal').classList.add('active');
+    };
+
+    window.closeMedalsModal = () => {
+      document.getElementById('medalsModal').classList.remove('active');
     };
 
     // OCR Handlers
@@ -1166,10 +1401,11 @@
       alert(`Successfully added ${count} Pokémon to ${selectedCategory.toUpperCase()}!`);
     };
 
-    // Close on Escape key
+    // Close Modals on Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeSummary();
+        closeMedalsModal();
         closeOcrModal();
       }
     });
@@ -1183,7 +1419,7 @@
       const dateStr = new Date().toISOString().split('T')[0];
       const link = document.createElement('a');
       link.href = url;
-      link.download = `pogo_pokemon_tracker_backup_${dateStr}.json`;
+      link.download = `pokemon_go_tracker_backup_${dateStr}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
