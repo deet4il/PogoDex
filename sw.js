@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pogo-living-dex-v5';
+const CACHE_NAME = 'pogo-living-dex-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
