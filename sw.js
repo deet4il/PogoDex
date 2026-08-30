@@ -36,7 +36,6 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return cachedResponse || fetch(event.request).catch(() => {
-        // Fallback gracefully for offline navigations
         if (event.request.mode === 'navigate') {
           return caches.match('./index.html');
         }
