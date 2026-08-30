@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pokémon GO Master Living Dex</title>
 
-  <!-- PWA & Mobile Meta Tags -->
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./favicon.png" />
   <link rel="apple-touch-icon" href="./icon-192.png" />
@@ -97,7 +96,7 @@
       border-color: var(--accent);
     }
 
-    /* Dashboard & Stat Badges */
+    /* Dashboard & Clickable Stat Badges */
     .dashboard {
       max-width: 1200px;
       margin: 14px auto 16px;
@@ -119,6 +118,14 @@
       border-radius: 6px;
       font-size: 11px;
       border: 1px solid var(--card-border);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      user-select: none;
+    }
+    .stat-badge:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      background: #151e2e;
     }
     .stat-badge strong { display: block; font-size: 12px; margin-top: 2px; }
 
@@ -235,6 +242,89 @@
     .btn.active-xxs      { background: var(--xxs);      color: #500724; border-color: var(--xxs); }
     .btn.active-xxl      { background: var(--xxl);      color: #2e1065; border-color: var(--xxl); }
     .btn.active-event    { background: var(--event);    color: #042f2e; border-color: var(--event); }
+
+    /* Summary Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      width: 100%;
+      max-width: 550px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 { margin: 0; font-size: 16px; }
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+    .modal-close:hover { color: #fff; }
+    .modal-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .modal-names-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 6px;
+    }
+    .name-pill {
+      background: #0b0f19;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .name-pill span { color: var(--text-muted); margin-right: 4px; }
+    .modal-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0f172a;
+      border-radius: 0 0 14px 14px;
+    }
   </style>
 </head>
 <body>
@@ -242,7 +332,7 @@
   <div class="header">
     <img src="./icon-192.png" alt="App Logo" class="header-logo" onerror="this.style.display='none'" />
     <h1>Pokémon GO Master Living Dex</h1>
-    <p>Living Dex, Variants, IVs, Sizes, Dynamax & Gigantamax</p>
+    <p>Click any badge below to view a quick text summary list</p>
     
     <div class="top-actions">
       <div class="sync-status">
@@ -257,18 +347,18 @@
 
   <div class="dashboard">
     <div class="stats-grid">
-      <div class="stat-badge">Standard <strong class="c-caught" id="statCaught">0 / 0</strong></div>
-      <div class="stat-badge">Shiny <strong class="c-shiny" id="statShiny">0 / 0</strong></div>
-      <div class="stat-badge">Lucky <strong class="c-lucky" id="statLucky">0 / 0</strong></div>
-      <div class="stat-badge">Shadow <strong class="c-shadow" id="statShadow">0 / 0</strong></div>
-      <div class="stat-badge">Purified <strong class="c-purified" id="statPurified">0 / 0</strong></div>
-      <div class="stat-badge">D-Max <strong class="c-dmax" id="statDmax">0 / 0</strong></div>
-      <div class="stat-badge">G-Max <strong class="c-gmax" id="statGmax">0 / 0</strong></div>
-      <div class="stat-badge">100% IV <strong class="c-hundo" id="statHundo">0 / 0</strong></div>
-      <div class="stat-badge">0% IV <strong class="c-nundo" id="statNundo">0 / 0</strong></div>
-      <div class="stat-badge">XXS <strong class="c-xxs" id="statXxs">0 / 0</strong></div>
-      <div class="stat-badge">XXL <strong class="c-xxl" id="statXxl">0 / 0</strong></div>
-      <div class="stat-badge">Event <strong class="c-event" id="statEvent">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('caught', 'Standard Living Dex')">Standard <strong class="c-caught" id="statCaught">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('shiny', '✨ Shiny Pokémon')">Shiny <strong class="c-shiny" id="statShiny">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('lucky', '🍀 Lucky Pokémon')">Lucky <strong class="c-lucky" id="statLucky">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('shadow', '🔥 Shadow Pokémon')">Shadow <strong class="c-shadow" id="statShadow">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('purified', '✨ Purified Pokémon')">Purified <strong class="c-purified" id="statPurified">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('dmax', '💥 Dynamax (D-Max)')">D-Max <strong class="c-dmax" id="statDmax">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('gmax', '⚡ Gigantamax (G-Max)')">G-Max <strong class="c-gmax" id="statGmax">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('hundo', '💯 100% IV (Hundo)')">100% IV <strong class="c-hundo" id="statHundo">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('nundo', '0️⃣ 0% IV (Nundo)')">0% IV <strong class="c-nundo" id="statNundo">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('xxs', '📏 XXS Pokémon')">XXS <strong class="c-xxs" id="statXxs">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('xxl', '📐 XXL Pokémon')">XXL <strong class="c-xxl" id="statXxl">0 / 0</strong></div>
+      <div class="stat-badge" onclick="showSummary('event', '🎀 Event / Costume')">Event <strong class="c-event" id="statEvent">0 / 0</strong></div>
     </div>
     <div class="bar-bg"><div class="bar-fill" id="progressBar"></div></div>
   </div>
@@ -308,11 +398,28 @@
 
   <div class="grid" id="pokemonGrid"></div>
 
+  <div class="modal-overlay" id="summaryModal" onclick="closeSummary(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalTitle">Badge Summary</h3>
+        <button class="modal-close" onclick="closeSummary()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        </div>
+      <div class="modal-footer">
+        <span id="modalCountText" style="font-size: 12px; color: var(--text-muted);">0 Pokémon</span>
+        <button class="action-btn" id="copyBtn" onclick="copyModalNames()">📋 Copy Names</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const STORAGE_KEY = 'pogo_living_dex_tracker_v3';
     const CACHE_META_KEY = 'pogo_last_known_count';
     let savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     let allPokemon = [];
+    let currentContextPool = [];
+    let currentModalNamesList = [];
 
     const TRACK_KEYS = ['caught', 'shiny', 'lucky', 'shadow', 'purified', 'dmax', 'gmax', 'hundo', 'nundo', 'xxs', 'xxl', 'event'];
 
@@ -378,15 +485,13 @@
       const gen = document.getElementById('genFilter').value;
       const status = document.getElementById('statusFilter').value;
 
-      // Filter by Search & Generation first (defines the active cohort/pool)
-      const contextPool = allPokemon.filter(p => {
+      currentContextPool = allPokemon.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(search) || String(p.id).includes(search);
         const matchesGen = gen === 'all' || p.gen === parseInt(gen);
         return matchesSearch && matchesGen;
       });
 
-      // Then filter by Status for display cards
-      const displayList = contextPool.filter(p => {
+      const displayList = currentContextPool.filter(p => {
         const state = savedState[p.id] || {};
         if (status === 'missing') return !state.caught;
         if (status !== 'all') return !!state[status];
@@ -431,7 +536,7 @@
         `;
       }).join('');
 
-      updateStats(contextPool);
+      updateStats(currentContextPool);
     }
 
     window.toggleStatus = (id, type) => {
@@ -460,7 +565,6 @@
 
       const pct = total > 0 ? Math.round((counts.caught / total) * 100) : 0;
 
-      // Update badges dynamically with current filter denominators
       document.getElementById('statCaught').innerText = `${counts.caught} / ${total} (${pct}%)`;
       document.getElementById('statShiny').innerText = `${counts.shiny} / ${total}`;
       document.getElementById('statLucky').innerText = `${counts.lucky} / ${total}`;
@@ -477,7 +581,62 @@
       document.getElementById('progressBar').style.width = `${pct}%`;
     }
 
-    // Backup & Restore
+    // Modal / Summary Viewer
+    window.showSummary = (categoryKey, title) => {
+      const modal = document.getElementById('summaryModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalBody = document.getElementById('modalBody');
+      const modalCountText = document.getElementById('modalCountText');
+
+      modalTitle.innerText = `${title} (In Current View)`;
+
+      const matchedList = currentContextPool.filter(p => {
+        const state = savedState[p.id];
+        return state && state[categoryKey];
+      });
+
+      currentModalNamesList = matchedList.map(p => `#${String(p.id).padStart(3, '0')} ${p.name}`);
+
+      if (matchedList.length === 0) {
+        modalBody.innerHTML = `<p style="color: var(--text-muted); text-align: center; margin: 20px 0;">No Pokémon marked under this category in the current view.</p>`;
+      } else {
+        modalBody.innerHTML = `
+          <div class="modal-names-list">
+            ${matchedList.map(p => `
+              <div class="name-pill">
+                <span>#${String(p.id).padStart(3, '0')}</span>${p.name}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      modalCountText.innerText = `${matchedList.length} of ${currentContextPool.length} Pokémon`;
+      modal.classList.add('active');
+    };
+
+    window.closeSummary = () => {
+      document.getElementById('summaryModal').classList.remove('active');
+    };
+
+    window.copyModalNames = () => {
+      if (currentModalNamesList.length === 0) return;
+      const textToCopy = currentModalNamesList.join('\n');
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const copyBtn = document.getElementById('copyBtn');
+        copyBtn.innerText = '✅ Copied!';
+        setTimeout(() => {
+          copyBtn.innerText = '📋 Copy Names';
+        }, 1500);
+      });
+    };
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSummary();
+    });
+
+    // Backup & Restore Handlers
     window.exportBackup = () => {
       const dataStr = JSON.stringify(savedState, null, 2);
       const blob = new Blob([dataStr], { type: 'application/json' });
