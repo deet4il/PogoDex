@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pokémon GO Master Living Dex</title>
 
+  <!-- PWA & Mobile Meta Tags -->
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./favicon.png" />
   <link rel="apple-touch-icon" href="./icon-192.png" />
@@ -27,6 +28,8 @@
       --lucky: #eab308;
       --shadow: #a855f7;
       --purified: #06b6d4;
+      --dmax: #e11d48;
+      --gmax: #f43f5e;
       --hundo: #ef4444;
       --nundo: #64748b;
       --xxs: #ec4899;
@@ -96,7 +99,7 @@
 
     /* Dashboard & Stat Badges */
     .dashboard {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 14px auto 16px;
       background: var(--card-bg);
       padding: 16px;
@@ -106,7 +109,7 @@
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
-      gap: 8px;
+      gap: 6px;
       text-align: center;
       margin-bottom: 12px;
     }
@@ -117,13 +120,15 @@
       font-size: 11px;
       border: 1px solid var(--card-border);
     }
-    .stat-badge strong { display: block; font-size: 14px; margin-top: 2px; }
+    .stat-badge strong { display: block; font-size: 12px; margin-top: 2px; }
 
     .c-caught { color: var(--caught); }
     .c-shiny { color: var(--shiny); }
     .c-lucky { color: var(--lucky); }
     .c-shadow { color: var(--shadow); }
     .c-purified { color: var(--purified); }
+    .c-dmax { color: var(--dmax); }
+    .c-gmax { color: var(--gmax); }
     .c-hundo { color: var(--hundo); }
     .c-nundo { color: var(--nundo); }
     .c-xxs { color: var(--xxs); }
@@ -140,7 +145,7 @@
       justify-content: center;
       flex-wrap: wrap;
       margin-bottom: 20px;
-      max-width: 1100px;
+      max-width: 1200px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -177,11 +182,13 @@
     }
     .card:hover { transform: translateY(-2px); }
 
-    .card.is-hundo { border-color: var(--hundo); box-shadow: 0 0 8px rgba(239, 68, 68, 0.25); }
-    .card.is-lucky:not(.is-hundo) { border-color: var(--lucky); box-shadow: 0 0 8px rgba(234, 179, 8, 0.25); }
-    .card.is-shadow:not(.is-hundo):not(.is-lucky) { border-color: var(--shadow); }
-    .card.is-shiny:not(.is-hundo):not(.is-lucky):not(.is-shadow) { border-color: var(--shiny); }
-    .card.is-caught:not(.is-hundo):not(.is-lucky):not(.is-shadow):not(.is-shiny) { border-color: var(--caught); }
+    .card.is-gmax { border-color: var(--gmax); box-shadow: 0 0 10px rgba(244, 63, 94, 0.35); }
+    .card.is-dmax:not(.is-gmax) { border-color: var(--dmax); box-shadow: 0 0 8px rgba(225, 29, 72, 0.25); }
+    .card.is-hundo:not(.is-gmax):not(.is-dmax) { border-color: var(--hundo); box-shadow: 0 0 8px rgba(239, 68, 68, 0.25); }
+    .card.is-lucky:not(.is-gmax):not(.is-dmax):not(.is-hundo) { border-color: var(--lucky); box-shadow: 0 0 8px rgba(234, 179, 8, 0.25); }
+    .card.is-shadow:not(.is-gmax):not(.is-dmax):not(.is-hundo):not(.is-lucky) { border-color: var(--shadow); }
+    .card.is-shiny:not(.is-gmax):not(.is-dmax):not(.is-hundo):not(.is-lucky):not(.is-shadow) { border-color: var(--shiny); }
+    .card.is-caught:not(.is-gmax):not(.is-dmax):not(.is-hundo):not(.is-lucky):not(.is-shadow):not(.is-shiny) { border-color: var(--caught); }
 
     .card img { width: 75px; height: 75px; object-fit: contain; margin: 0 auto 4px; }
     .dex-num { font-size: 11px; color: var(--text-muted); font-weight: 600; }
@@ -221,6 +228,8 @@
     .btn.active-lucky    { background: var(--lucky);    color: #422006; border-color: var(--lucky); }
     .btn.active-shadow   { background: var(--shadow);   color: #3b0764; border-color: var(--shadow); }
     .btn.active-purified { background: var(--purified); color: #083344; border-color: var(--purified); }
+    .btn.active-dmax     { background: var(--dmax);     color: #4c0519; border-color: var(--dmax); }
+    .btn.active-gmax     { background: var(--gmax);     color: #4c0519; border-color: var(--gmax); }
     .btn.active-hundo    { background: var(--hundo);    color: #450a0a; border-color: var(--hundo); }
     .btn.active-nundo    { background: var(--nundo);    color: #0f172a; border-color: var(--nundo); }
     .btn.active-xxs      { background: var(--xxs);      color: #500724; border-color: var(--xxs); }
@@ -233,7 +242,7 @@
   <div class="header">
     <img src="./icon-192.png" alt="App Logo" class="header-logo" onerror="this.style.display='none'" />
     <h1>Pokémon GO Master Living Dex</h1>
-    <p>Living Dex, Shinies, Luckies, Shadows, IVs, Sizes & Costumes</p>
+    <p>Living Dex, Variants, IVs, Sizes, Dynamax & Gigantamax</p>
     
     <div class="top-actions">
       <div class="sync-status">
@@ -249,15 +258,17 @@
   <div class="dashboard">
     <div class="stats-grid">
       <div class="stat-badge">Standard <strong class="c-caught" id="statCaught">0 / 0</strong></div>
-      <div class="stat-badge">Shiny <strong class="c-shiny" id="statShiny">0</strong></div>
-      <div class="stat-badge">Lucky <strong class="c-lucky" id="statLucky">0</strong></div>
-      <div class="stat-badge">Shadow <strong class="c-shadow" id="statShadow">0</strong></div>
-      <div class="stat-badge">Purified <strong class="c-purified" id="statPurified">0</strong></div>
-      <div class="stat-badge">100% IV <strong class="c-hundo" id="statHundo">0</strong></div>
-      <div class="stat-badge">0% IV <strong class="c-nundo" id="statNundo">0</strong></div>
-      <div class="stat-badge">XXS <strong class="c-xxs" id="statXxs">0</strong></div>
-      <div class="stat-badge">XXL <strong class="c-xxl" id="statXxl">0</strong></div>
-      <div class="stat-badge">Event <strong class="c-event" id="statEvent">0</strong></div>
+      <div class="stat-badge">Shiny <strong class="c-shiny" id="statShiny">0 / 0</strong></div>
+      <div class="stat-badge">Lucky <strong class="c-lucky" id="statLucky">0 / 0</strong></div>
+      <div class="stat-badge">Shadow <strong class="c-shadow" id="statShadow">0 / 0</strong></div>
+      <div class="stat-badge">Purified <strong class="c-purified" id="statPurified">0 / 0</strong></div>
+      <div class="stat-badge">D-Max <strong class="c-dmax" id="statDmax">0 / 0</strong></div>
+      <div class="stat-badge">G-Max <strong class="c-gmax" id="statGmax">0 / 0</strong></div>
+      <div class="stat-badge">100% IV <strong class="c-hundo" id="statHundo">0 / 0</strong></div>
+      <div class="stat-badge">0% IV <strong class="c-nundo" id="statNundo">0 / 0</strong></div>
+      <div class="stat-badge">XXS <strong class="c-xxs" id="statXxs">0 / 0</strong></div>
+      <div class="stat-badge">XXL <strong class="c-xxl" id="statXxl">0 / 0</strong></div>
+      <div class="stat-badge">Event <strong class="c-event" id="statEvent">0 / 0</strong></div>
     </div>
     <div class="bar-bg"><div class="bar-fill" id="progressBar"></div></div>
   </div>
@@ -285,6 +296,8 @@
       <option value="lucky">Lucky</option>
       <option value="shadow">Shadow</option>
       <option value="purified">Purified</option>
+      <option value="dmax">Dynamax (D-Max)</option>
+      <option value="gmax">Gigantamax (G-Max)</option>
       <option value="hundo">100% IV (Hundo)</option>
       <option value="nundo">0% IV (Nundo)</option>
       <option value="xxs">XXS</option>
@@ -301,7 +314,7 @@
     let savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     let allPokemon = [];
 
-    const TRACK_KEYS = ['caught', 'shiny', 'lucky', 'shadow', 'purified', 'hundo', 'nundo', 'xxs', 'xxl', 'event'];
+    const TRACK_KEYS = ['caught', 'shiny', 'lucky', 'shadow', 'purified', 'dmax', 'gmax', 'hundo', 'nundo', 'xxs', 'xxl', 'event'];
 
     function getGeneration(id) {
       if (id <= 151) return 1;
@@ -365,26 +378,28 @@
       const gen = document.getElementById('genFilter').value;
       const status = document.getElementById('statusFilter').value;
 
-      const filtered = allPokemon.filter(p => {
-        const state = savedState[p.id] || {};
+      // Filter by Search & Generation first (defines the active cohort/pool)
+      const contextPool = allPokemon.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(search) || String(p.id).includes(search);
         const matchesGen = gen === 'all' || p.gen === parseInt(gen);
-
-        let matchesStatus = true;
-        if (status === 'missing') {
-          matchesStatus = !state.caught;
-        } else if (status !== 'all') {
-          matchesStatus = !!state[status];
-        }
-
-        return matchesSearch && matchesGen && matchesStatus;
+        return matchesSearch && matchesGen;
       });
 
-      grid.innerHTML = filtered.map(p => {
+      // Then filter by Status for display cards
+      const displayList = contextPool.filter(p => {
+        const state = savedState[p.id] || {};
+        if (status === 'missing') return !state.caught;
+        if (status !== 'all') return !!state[status];
+        return true;
+      });
+
+      grid.innerHTML = displayList.map(p => {
         const state = savedState[p.id] || {};
         
         let cardClasses = ['card'];
-        if (state.hundo) cardClasses.push('is-hundo');
+        if (state.gmax) cardClasses.push('is-gmax');
+        else if (state.dmax) cardClasses.push('is-dmax');
+        else if (state.hundo) cardClasses.push('is-hundo');
         else if (state.lucky) cardClasses.push('is-lucky');
         else if (state.shadow) cardClasses.push('is-shadow');
         else if (state.shiny) cardClasses.push('is-shiny');
@@ -404,6 +419,8 @@
               <button class="btn ${state.lucky ? 'active-lucky' : ''}" onclick="toggleStatus(${p.id}, 'lucky')">🍀 Lucky</button>
               <button class="btn ${state.shadow ? 'active-shadow' : ''}" onclick="toggleStatus(${p.id}, 'shadow')">🔥 Shadow</button>
               <button class="btn ${state.purified ? 'active-purified' : ''}" onclick="toggleStatus(${p.id}, 'purified')">✨ Purified</button>
+              <button class="btn ${state.dmax ? 'active-dmax' : ''}" onclick="toggleStatus(${p.id}, 'dmax')">💥 D-Max</button>
+              <button class="btn ${state.gmax ? 'active-gmax' : ''}" onclick="toggleStatus(${p.id}, 'gmax')">⚡ G-Max</button>
               <button class="btn ${state.hundo ? 'active-hundo' : ''}" onclick="toggleStatus(${p.id}, 'hundo')">💯 100%</button>
               <button class="btn ${state.nundo ? 'active-nundo' : ''}" onclick="toggleStatus(${p.id}, 'nundo')">0️⃣ 0% IV</button>
               <button class="btn ${state.xxs ? 'active-xxs' : ''}" onclick="toggleStatus(${p.id}, 'xxs')">📏 XXS</button>
@@ -414,7 +431,7 @@
         `;
       }).join('');
 
-      updateStats();
+      updateStats(contextPool);
     }
 
     window.toggleStatus = (id, type) => {
@@ -430,27 +447,32 @@
       render();
     };
 
-    function updateStats() {
-      const total = allPokemon.length;
-      const values = Object.values(savedState);
+    function updateStats(pool) {
+      const total = pool.length;
       
       const counts = {};
       TRACK_KEYS.forEach(k => {
-        counts[k] = values.filter(s => s[k]).length;
+        counts[k] = pool.filter(p => {
+          const state = savedState[p.id];
+          return state && state[k];
+        }).length;
       });
 
       const pct = total > 0 ? Math.round((counts.caught / total) * 100) : 0;
 
+      // Update badges dynamically with current filter denominators
       document.getElementById('statCaught').innerText = `${counts.caught} / ${total} (${pct}%)`;
-      document.getElementById('statShiny').innerText = counts.shiny;
-      document.getElementById('statLucky').innerText = counts.lucky;
-      document.getElementById('statShadow').innerText = counts.shadow;
-      document.getElementById('statPurified').innerText = counts.purified;
-      document.getElementById('statHundo').innerText = counts.hundo;
-      document.getElementById('statNundo').innerText = counts.nundo;
-      document.getElementById('statXxs').innerText = counts.xxs;
-      document.getElementById('statXxl').innerText = counts.xxl;
-      document.getElementById('statEvent').innerText = counts.event;
+      document.getElementById('statShiny').innerText = `${counts.shiny} / ${total}`;
+      document.getElementById('statLucky').innerText = `${counts.lucky} / ${total}`;
+      document.getElementById('statShadow').innerText = `${counts.shadow} / ${total}`;
+      document.getElementById('statPurified').innerText = `${counts.purified} / ${total}`;
+      document.getElementById('statDmax').innerText = `${counts.dmax} / ${total}`;
+      document.getElementById('statGmax').innerText = `${counts.gmax} / ${total}`;
+      document.getElementById('statHundo').innerText = `${counts.hundo} / ${total}`;
+      document.getElementById('statNundo').innerText = `${counts.nundo} / ${total}`;
+      document.getElementById('statXxs').innerText = `${counts.xxs} / ${total}`;
+      document.getElementById('statXxl').innerText = `${counts.xxl} / ${total}`;
+      document.getElementById('statEvent').innerText = `${counts.event} / ${total}`;
 
       document.getElementById('progressBar').style.width = `${pct}%`;
     }
